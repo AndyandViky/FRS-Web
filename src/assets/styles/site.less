@@ -1,0 +1,178 @@
+a,
+abbr,
+acronym,
+address,
+applet,
+big,
+blockquote,
+body,
+caption,
+cite,
+code,
+dd,
+del,
+dfn,
+div,
+dl,
+dt,
+em,
+fieldset,
+form,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+html,
+iframe,
+img,
+ins,
+kbd,
+label,
+legend,
+li,
+object,
+ol,
+p,
+pre,
+q,
+s,
+samp,
+small,
+span,
+strike,
+strong,
+sub,
+sup,
+table,
+tbody,
+td,
+tfoot,
+th,
+thead,
+tr,
+tt,
+ul,
+var {
+	padding: 0;
+	margin: 0;
+	border: 0;
+	outline: 0;
+	font-weight: inherit;
+	font-style: inherit;
+	font-family: inherit;
+	font-size: 100%;
+	vertical-align: baseline;
+}
+
+*,
+a,
+div,
+p,
+span,
+li {
+	// font: 14px, PingFangSC-Light,'helvetica neue','hiragino sans gb',tahoma,'microsoft yahei ui','microsoft yahei',simsun,sans-serif;
+	// font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+	font-family: 'helvetica neue','hiragino sans gb',tahoma,'microsoft yahei ui','microsoft yahei',simsun,sans-serif;
+}
+
+a {
+	cursor: pointer;
+}
+
+a,
+a:hover,
+a:visited,
+a:active,
+a:link {
+	text-decoration: none;
+	color: #000;
+}
+
+a:hover {
+	color: @primary-hover-color !important;
+}
+
+body,
+ul,
+li,
+dl {
+	margin: 0;
+	padding: 0;
+}
+
+li {
+	list-style-type: none;
+}
+
+.block {
+	display: block;
+}
+
+.clear {
+	clear: both;
+}
+
+.left {
+	float: left;
+}
+
+.right {
+	float: right;
+}
+
+.container {
+	width: 1200px;
+	padding: 0 10px;
+	margin-left: auto;
+	margin-right: auto;
+	position: relative;
+	box-sizing: border-box;
+}
+
+.row {
+	width: 100%;
+}
+
+.button {
+	display: inline-block;
+	border-radius: 4px;
+	padding: 0 20px; // height: 40px;
+	text-align: center;
+	line-height: 40px;
+	color: white;
+	background-color: @primary-color;
+	cursor: pointer;
+	font-size: 14px;
+}
+
+.button:hover {
+	background-color: @primary-hover-color;
+}
+
+.white_button {
+	background-color: inherit;
+	color: @primary-color;
+	border: 1px solid @primary-color;
+	margin-right: 5px;
+}
+
+.white_button:hover {
+	background-color: @primary-color;
+	color: #fff;
+	border: 1px solid @primary-color;
+	transition: all .8s;
+}
+
+.shadow {
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, .3);
+}
+
+.line {
+	height: 1px;
+	background-color: @line-color;
+	width: 100%;
+}
