@@ -115,6 +115,18 @@
                 </el-form>
             </div>
             <div class="face_manage" v-if="currentIndex===menuEnum.faceImage.value">
+                <el-button type="danger" plain class="image_button" @click="editImage">{{editImageText}}</el-button>
+                <ul>
+                    <el-checkbox-group v-model="imageCheckBox">
+                        <li class="image_item left" v-for="(item, index) in faceData" :key="index">
+                            <div class="image_mark" v-show="showImageMark"></div>
+                            <i class="el-icon-close delete_image" v-show="showImageMark" @click="deleteImage(index)"></i>
+                            <el-checkbox :label="item.id" v-show="showImageMark" class="image_check" name="imageCheckBox"></el-checkbox>
+                            <img :src="item.img" alt="">
+                        </li>
+                    </el-checkbox-group>
+                </ul>
+                <div class="clear"></div>
                 <v-pagination :total="10" v-if="visitorData.length>0"></v-pagination>
             </div>
             <div class="face_record" v-if="currentIndex===menuEnum.faceRecord.value">
@@ -124,15 +136,13 @@
                     </li>
                 </ul>
                 <div class="clear"></div>
-                <ul v-if="visitorData1.length > 0">
-                    <li class="visitor_list" v-for="(item, index) in visitorData1" :key="index">
-                        <img src="/static/images/user_avatar.png" alt="" class="left" width="60px" height="60px">
-                        <span class="visitor_name">{{item.name}}</span>
-                        <span v-if="item.gender === 0">男</span>
-                        <span v-if="item.gender === 1">女</span>
-                        <span>年龄: {{item.age}}</span>
-                        <span>申请时间: <span style="font-size: 15px; color: #999;margin-left:10px;">{{item.apply_time}}</span></span>
-                        <el-button class="list_button" type="danger" size="small" @click="deleteApply(index)">删除</el-button>
+                <ul v-if="recordData1.length > 0">
+                    <li class="record_list" v-for="(item, index) in recordData1" :key="index">
+                        <span v-if="item.status === 0">进入方式: app</span>
+                        <span v-if="item.status === 1">进入方式: camera</span>
+                        <span>人数: {{item.count}}</span>
+                        <span>进入时间: <span style="font-size: 15px; color: #999;margin-left:10px;">{{item.created_at}}</span></span>
+                        <el-button class="list_button" type="danger" size="small" @click="deleteRecord(index)">删除</el-button>
                     </li>
                 </ul>
                 <v-pagination :total="10" v-if="visitorData.length>0"></v-pagination>
@@ -181,6 +191,7 @@ export default {
             currentIndex: 0,
             visitorCurrentIndex: 0,
             recordCurrentIndex: 0,
+            // -----
             imageUrl: '',
             bugImageUrl: '',
             menuData: [
@@ -313,21 +324,52 @@ export default {
                 {
                     id: 0,
                     count: 2,
+                    status: 0,
+                    created_at: '2017-10-22 12:22',
+                },
+                {
+                    id: 1,
+                    count: 2,
+                    status: 1,
+                    created_at: '2017-10-22 12:22',
+                },
+                {
+                    id: 2,
+                    count: 2,
+                    status: 1,
                     created_at: '2017-10-22 12:22',
                 },
             ],
             recordData1: [],
+            faceData: [
+                {
+                    id: 1,
+                    img: "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2201846336,2134716287&fm=200&gp=0.jpg"
+                },
+                {
+                    id: 2,
+                    img: "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2201846336,2134716287&fm=200&gp=0.jpg"
+                },
+                {
+                    id: 3,
+                    img: "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2201846336,2134716287&fm=200&gp=0.jpg"
+                },
+                {
+                    id: 4,
+                    img: "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2201846336,2134716287&fm=200&gp=0.jpg"
+                }
+            ],
+            // ------
+            editImageText: '编辑',
+            showImageMark: false,
+            imageCheckBox: [],
         };
     },
     created() {
         this.visitorData1 = this.visitorData;
+        this.recordData1 = this.recordData;
     },
     methods: {
-        handleOpen() {
-
-        },
-        handleClose() {
-        },
         onSubmit() {
             this.$refs["user_form"].validate((valid) => {
                 if (valid) {
@@ -375,29 +417,54 @@ export default {
         },
         filterVisitorData(index) {
             this.visitorCurrentIndex = index;
+            this.visitorData1 = [];
             switch (index) {
             case 0:
-                this.visitorData1 = [];
                 this.visitorData1 = this.visitorData;
                 break;
             case 1:
-                this.getVisitorByStatus(1);
+                this.visitorData1 = this.getDataByStatus(this.visitorData, 1);
                 break;
             case 2:
-                this.getVisitorByStatus(0);
+                this.visitorData1 = this.getDataByStatus(this.visitorData, 0);
                 break;
             case 3:
-                this.getVisitorByStatus(2);
+                this.visitorData1 = this.getDataByStatus(this.visitorData, 2);
                 break;
             }
         },
-        getVisitorByStatus(status) {
-            this.visitorData1 = [];
-            for (let item of this.visitorData) {
+        filterRecordData(index) {
+            this.recordCurrentIndex = index;
+            this.recordData1 = [];
+            switch (index) {
+            case 0:
+                this.recordData1 = this.recordData;
+                break;
+            case 1:
+                this.recordData1 = this.getDataByStatus(this.recordData, 0);
+                break;
+            case 2:
+                this.recordData1 = this.getDataByStatus(this.recordData, 1);
+                break;
+            }
+        },
+        deleteRecord(index) {
+            this.$alert('是否删所访客记录?', '删除数据', {
+                confirmButtonText: '确定',
+                callback: action => {
+                    this.recordData1.splice(index, 1);
+                    this.$message.success("删除成功");
+                }
+            });
+        },
+        getDataByStatus(content, status) {
+            let data = [];
+            for (let item of content) {
                 if (item.status === status) {
-                    this.visitorData1.push(item);
+                    data.push(item);
                 }
             }
+            return data;
         },
         passApply(index) {
             this.visitorData1[index].status = 1;
@@ -406,6 +473,24 @@ export default {
         deleteApply(index) {
             this.visitorData1.splice(index, 1);
             this.$message.success('删除成功!');
+        },
+        editImage() {
+            if (this.editImageText === "编辑") {
+                this.showImageMark = true;
+                this.editImageText = "完成";
+            } else {
+                this.showImageMark = false;
+                this.editImageText = "编辑";
+            }
+        },
+        deleteImage(index) {
+            this.$alert('是否删所选人脸图片?', '删除图片', {
+                confirmButtonText: '确定',
+                callback: action => {
+                    this.faceData.splice(index, 1);
+                    this.$message.success("删除成功");
+                }
+            });
         }
     }
 };
@@ -458,7 +543,7 @@ export default {
     }
     .menu_desc{
         width: 760px;
-        height: 600px;
+        min-height: 400px;
         .el-input__inner{
             width: 200px;
         }
@@ -513,7 +598,7 @@ export default {
                 cursor: pointer;
                 padding-right: 30px;
             }
-            .visitor_list{
+            .record_list{
                 margin-top: 10px;
                 height: 100px;
                 border-bottom: 1px solid #ccc;
@@ -531,6 +616,49 @@ export default {
             }
             .record_menu_bg{
                 color: @primary-color;
+            }
+        }
+        >.face_manage{
+            margin-left: 30px;
+            margin-top: 20px;
+            .image_button{
+                margin-bottom: 10px;
+            }
+            .image_item{
+                width: 220px;
+                height: 300px;
+                margin-right: 22px;
+                margin-bottom: 20px;
+                position: relative;
+                &:last-child{
+                    margin-right: 0px;
+                }
+                >img{
+                    width: 220px;
+                    height: 300px;
+                }
+                .image_mark{
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0,0,0,.5);
+                }
+                .image_check{
+                    position: absolute;
+                    left: 10px;
+                    top: 10px;
+                }
+                .delete_image{
+                    position: absolute;
+                    right: 5px;
+                    z-index: 200;
+                    cursor: pointer;
+                    top: 5px;
+                    color: #ffffff;
+                    font-size: 20px;
+                }
             }
         }
     }

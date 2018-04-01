@@ -6,6 +6,7 @@ import About from '../views/about/about';
 import Communications from '../views/communications/communications'; // 互动交流
 import CommunicationDetail from '../views/communications/detail'; // 互动交流详情
 import User from '../views/user/user'; // 用户详情
+import Verify from '../views/user/verify'; // 业主验证身份
 
 Vue.use(Router);
 
@@ -20,6 +21,7 @@ const vueRouter = new Router({
             {path: '/communications', component: Communications, meta: {keepAlive: true, title: '人脸门禁联盟-互动交流'}},
             {path: '/communications/detail', component: CommunicationDetail, meta: {keepAlive: true, title: '人脸门禁联盟-互动交流-详情'}},
             {path: '/user', component: User, meta: {keepAlive: true, title: '人脸门禁联盟-用户信息'}},
+            {path: '/verify', component: Verify, meta: {keepAlive: true, title: '人脸门禁联盟-业主校验'}},
         ]
     }],
 });
