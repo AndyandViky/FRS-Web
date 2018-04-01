@@ -1,4 +1,4 @@
-# ibus
+# face
 
 > A Vue.js project
 

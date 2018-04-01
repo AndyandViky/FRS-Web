@@ -26,10 +26,10 @@
             <div class="clear"></div>
         </div>
         <div class="visitor_box">
-            <img src="http://kaimen.geeku.top/images/index2/eight_banner.png" alt="">
+            <img src="/static/images/eight_banner2.png" alt="">
         </div>
         <div class="visitor_box">
-            <img src="http://kaimen.geeku.top/images/index2/five_banner.png" alt="">
+            <img src="/static/images/five_banner.jpg" alt="">
         </div>
         <div class="effect_box">
             <ul>
@@ -133,7 +133,7 @@ img {
         width: 407px;
         height: 220px;
         float: right;
-        background: url("http://kaimen.geeku.top/images/index2/right_img.png") no-repeat center center;
+        background: url("/static/images/right_img.png") no-repeat center center;
         background-size: contain;
     }
 }

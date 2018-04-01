@@ -82,6 +82,61 @@
                 </ul>
                 <v-pagination :total="10" v-if="visitorData.length>0"></v-pagination>
             </div>
+            <div class="bug_apply" v-if="currentIndex===menuEnum.bug.value">
+                <el-form class="bug_form" ref="bug_form" :model="bugForm" label-width="80px">
+                    <el-form-item label="故障标题" prop="title"
+                    :rules="{
+                        required: true, message: '标题不能为空', trigger: 'blur'
+                    }"
+                    >
+                        <el-input v-model="bugForm.title"></el-input>
+                    </el-form-item>
+                     <el-form-item label="故障内容" prop="content" 
+                    :rules="{
+                        required: true, message: '内容不能为空', trigger: 'blur'
+                    }"
+                    >
+                        <el-input type="textarea" v-model="bugForm.content"></el-input>
+                    </el-form-item>
+                    <el-form-item label="故障图片">
+                        <el-upload
+                            class="avatar-uploader"
+                            action="https://jsonplaceholder.typicode.com/posts/"
+                            :show-file-list="false"
+                            :on-success="handleBugSuccess"
+                            :before-upload="beforeBugUpload">
+                            <img v-if="bugImageUrl" :src="bugImageUrl" class="avatar">
+                            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                        </el-upload>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" @click="postBug">提交</el-button>
+                    </el-form-item>
+                </el-form>
+            </div>
+            <div class="face_manage" v-if="currentIndex===menuEnum.faceImage.value">
+                <v-pagination :total="10" v-if="visitorData.length>0"></v-pagination>
+            </div>
+            <div class="face_record" v-if="currentIndex===menuEnum.faceRecord.value">
+                <ul>
+                    <li @click="filterRecordData(index)" :class="{record_menu_bg: recordCurrentIndex===index}" class="visitor_menu" v-for="(item, index) in recordMenu" :key="index">
+                        {{item.title}}
+                    </li>
+                </ul>
+                <div class="clear"></div>
+                <ul v-if="visitorData1.length > 0">
+                    <li class="visitor_list" v-for="(item, index) in visitorData1" :key="index">
+                        <img src="/static/images/user_avatar.png" alt="" class="left" width="60px" height="60px">
+                        <span class="visitor_name">{{item.name}}</span>
+                        <span v-if="item.gender === 0">男</span>
+                        <span v-if="item.gender === 1">女</span>
+                        <span>年龄: {{item.age}}</span>
+                        <span>申请时间: <span style="font-size: 15px; color: #999;margin-left:10px;">{{item.apply_time}}</span></span>
+                        <el-button class="list_button" type="danger" size="small" @click="deleteApply(index)">删除</el-button>
+                    </li>
+                </ul>
+                <v-pagination :total="10" v-if="visitorData.length>0"></v-pagination>
+            </div>
             <div class="change_pwd" v-if="currentIndex===menuEnum.password.value">
                 <el-form class="pwd_form" ref="pwd_form" :model="pwdForm" label-width="120px">
                     <el-form-item label="旧密码" prop="oldPassword"
@@ -125,7 +180,9 @@ export default {
         return {
             currentIndex: 0,
             visitorCurrentIndex: 0,
+            recordCurrentIndex: 0,
             imageUrl: '',
+            bugImageUrl: '',
             menuData: [
                 {
                     id: 0,
@@ -137,6 +194,18 @@ export default {
                 },
                 {
                     id: 2,
+                    title: '故障上报',
+                },
+                {
+                    id: 3,
+                    title: '图像管理',
+                },
+                {
+                    id: 4,
+                    title: '门禁记录',
+                },
+                {
+                    id: 5,
                     title: "密码修改",
                 }
             ],
@@ -149,8 +218,20 @@ export default {
                     value: 1,
                     title: '访客管理',
                 },
-                password: {
+                bug: {
                     value: 2,
+                    title: '故障上报',
+                },
+                faceImage: {
+                    value: 3,
+                    title: '图像管理',
+                },
+                faceRecord: {
+                    value: 4,
+                    title: '门禁记录',
+                },
+                password: {
+                    value: 5,
                     title: '密码修改',
                 }
             },
@@ -164,6 +245,10 @@ export default {
                 oldPassword: '',
                 newPassword: '',
                 newPassword1: '',
+            },
+            bugForm: {
+                title: '门禁准确率',
+                content: '门禁准确率'
             },
             visitorMenu: [
                 {
@@ -210,6 +295,28 @@ export default {
                 }
             ],
             visitorData1: [],
+            recordMenu: [
+                {
+                    id: 0,
+                    title: '全部'
+                },
+                {
+                    id: 1,
+                    title: '识别进入'
+                },
+                {
+                    id: 2,
+                    title: 'app进入'
+                },
+            ],
+            recordData: [
+                {
+                    id: 0,
+                    count: 2,
+                    created_at: '2017-10-22 12:22',
+                },
+            ],
+            recordData1: [],
         };
     },
     created() {
@@ -225,6 +332,16 @@ export default {
             this.$refs["user_form"].validate((valid) => {
                 if (valid) {
                     this.$message.success('修改成功!');
+                } else {
+                    console.log('error submit!!');
+                    return false;
+                }
+            });
+        },
+        postBug() {
+            this.$refs["bug_form"].validate((valid) => {
+                if (valid) {
+                    this.$message.success('提交成功!');
                 } else {
                     console.log('error submit!!');
                     return false;
@@ -345,6 +462,9 @@ export default {
         .el-input__inner{
             width: 200px;
         }
+        .el-textarea__inner{
+            width: 300px;
+        }
         .el-upload__input{
             display: none;
         }
@@ -379,6 +499,37 @@ export default {
                 }
             }
             .visitor_menu_bg{
+                color: @primary-color;
+            }
+        }
+        >.face_record{
+            margin-left: 50px;
+            .visitor_menu{
+                float: left;
+                transition: all ease .3s;
+                &:hover{
+                    color: @primary-color;
+                }
+                cursor: pointer;
+                padding-right: 30px;
+            }
+            .visitor_list{
+                margin-top: 10px;
+                height: 100px;
+                border-bottom: 1px solid #ccc;
+                >img{
+                    margin-top: 20px;
+                }
+                >span{
+                    margin-left: 40px;
+                    line-height: 100px;
+                }
+                .list_button{
+                    float: right;
+                    margin-top: 34px;
+                }
+            }
+            .record_menu_bg{
                 color: @primary-color;
             }
         }
