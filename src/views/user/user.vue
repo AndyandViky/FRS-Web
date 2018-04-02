@@ -175,6 +175,37 @@
                     </el-form-item>
                 </el-form>
             </div>
+            <div class="visite_apply" v-if="currentIndex===menuEnum.visiteApply.value">
+                <el-form class="apply_form" ref="apply_form" :model="applyForm" label-width="80px">
+                    <el-form-item label="访问地址" prop="adress"
+                    :rules="{
+                        required: true, message: '访问地址不能为空', trigger: 'blur'
+                    }"
+                    >
+                         <el-cascader
+                            :options="adress"
+                            v-model="applyForm.adress">
+                        </el-cascader>
+                    </el-form-item>
+                    <el-form-item label="访问天数" prop="deadline"
+                    :rules="{
+                        required: true, message: '访问天数不能为空', trigger: 'blur'
+                    }"
+                    >
+                        <el-input-number style="width: 200px" v-model="applyForm.deadline" :min="1" :max="30" label="描述文字"></el-input-number>
+                    </el-form-item>
+                    <el-form-item label="访问原因" prop="reason"
+                    :rules="{
+                        required: true, message: '访问原因不能为空', trigger: 'blur'
+                    }"
+                    >
+                        <el-input v-model="applyForm.reason" type="textarea" :rows="4" placeholder="请输入访问原因..."></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" @click="postApply">提交申请</el-button>
+                    </el-form-item>
+                </el-form>
+            </div>
         </div>
         <div class="clear"></div>
     </div>
@@ -191,6 +222,30 @@ export default {
             currentIndex: 0,
             visitorCurrentIndex: 0,
             recordCurrentIndex: 0,
+            // 所有的地址
+            adress: [
+                {
+                    value: '浙江',
+                    label: '浙江',
+                    children: [{
+                        value: '绍兴',
+                        label: '绍兴',
+                        children: [{
+                            value: '幸福花园小区1',
+                            label: '幸福花园小区1'
+                        }, {
+                            value: '幸福花园小区2',
+                            label: '幸福花园小区2'
+                        }, {
+                            value: '幸福花园小区3',
+                            label: '幸福花园小区3'
+                        }, {
+                            value: '幸福花园小区4',
+                            label: '幸福花园小区4'
+                        }]
+                    }]
+                }
+            ],
             // -----
             imageUrl: '',
             bugImageUrl: '',
@@ -218,6 +273,10 @@ export default {
                 {
                     id: 5,
                     title: "密码修改",
+                },
+                {
+                    id: 6,
+                    title: "访问申请",
                 }
             ],
             menuEnum: {
@@ -244,6 +303,10 @@ export default {
                 password: {
                     value: 5,
                     title: '密码修改',
+                },
+                visiteApply: {
+                    value: 6,
+                    title: '访问申请',
                 }
             },
             userForm: {
@@ -260,6 +323,11 @@ export default {
             bugForm: {
                 title: '门禁准确率',
                 content: '门禁准确率'
+            },
+            applyForm: {
+                adress: [],
+                reason: '',
+                deadline: 1,
             },
             visitorMenu: [
                 {
@@ -491,6 +559,17 @@ export default {
                     this.$message.success("删除成功");
                 }
             });
+        },
+        postApply() {
+            // 提交申请信息
+            this.$refs["apply_form"].validate((valid) => {
+                if (valid) {
+                    this.$message.success('提交成功!');
+                } else {
+                    console.log('error submit!!');
+                    return false;
+                }
+            });
         }
     }
 };
@@ -543,7 +622,7 @@ export default {
     }
     .menu_desc{
         width: 760px;
-        min-height: 400px;
+        min-height: 600px;
         .el-input__inner{
             width: 200px;
         }
@@ -630,6 +709,8 @@ export default {
                 margin-right: 22px;
                 margin-bottom: 20px;
                 position: relative;
+                box-shadow: 2px 2px 1px #ccc;
+                cursor: pointer;
                 &:last-child{
                     margin-right: 0px;
                 }
@@ -647,8 +728,8 @@ export default {
                 }
                 .image_check{
                     position: absolute;
-                    left: 10px;
-                    top: 10px;
+                    left: 5px;
+                    top: 5px;
                 }
                 .delete_image{
                     position: absolute;
@@ -660,6 +741,9 @@ export default {
                     font-size: 20px;
                 }
             }
+        }
+        >.visite_apply, >.bug_apply{
+            margin-left: 50px;
         }
     }
 }
