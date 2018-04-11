@@ -1,25 +1,51 @@
 <script>
+import { User } from '@/api';
+import { uploadAttachment } from '@/help/env';
+
 export default {
     name: 'verify',
     data() {
         return {
-            verifyForm: {},
-            identityUrl: '',
-            cardFrontUrl: '',
-            cardOppositeUrl: '',
+            verifyForm: {
+                phone: '',
+                card_id: '',
+                identity_pic: '',
+                card_front: '',
+                card_opposite: '',
+            },
+            auth: {
+                authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZWxmSWQiOjIsImlhdCI6MTUyMzM1MzA5OSwiZXhwIjoxNTI0MjE3MDk5fQ.TtmIHDbSfLoRXeA88u7mZBV6--4q8T9ml-O58q6TEjE'
+            },
+            idUrl: '',
+            cardFUrl: '',
+            cardOUrl: '',
+            uploadUrl: '',
             rules: {
                 phone: [
                     { required: true, message: '请输入手机号码', trigger: 'blur' },
                 ],
                 card_id: [
                     { required: true, message: '请输入身份证号码', trigger: 'blur' },
+                ],
+                identity_pic: [
+                    { required: true, message: '请上传房地产证明' },
+                ],
+                card_front: [
+                    { required: true, message: '请上传身份证正面' },
+                ],
+                card_opposite: [
+                    { required: true, message: '请上传身份证反面' },
                 ]
             }
         };
     },
     created() {
+        this.uploadUrl = uploadAttachment;
     },
     mounted() {
+        if (this.$store.getters.residentAuth !== 0) {
+            this.$router.push({path: "/user"});
+        }
     },
     methods: {
         beforeUpload(file) {
@@ -31,23 +57,24 @@ export default {
             return isLt2M;
         },
         handleSuccess1(res, file) {
-            this.identityUrl = URL.createObjectURL(file.raw);
+            this.verifyForm.identity_pic = res.data.path;
+            this.idUrl = URL.createObjectURL(file.raw);
         },
         handleSuccess2(res, file) {
-            this.cardFrontUrl = URL.createObjectURL(file.raw);
+            this.verifyForm.card_front = res.data.path;
+            this.cardFUrl = URL.createObjectURL(file.raw);
         },
         handleSuccess3(res, file) {
-            this.cardOppositeUrl = URL.createObjectURL(file.raw);
+            this.verifyForm.card_opposite = res.data.path;
+            this.cardOUrl = URL.createObjectURL(file.raw);
         },
         postVerify() {
             // 提交审核信息
-            this.$refs["verify_form"].validate((valid) => {
+            this.$refs["verify_form"].validate(async (valid) => {
                 if (valid) {
-                    if (!this.identityUrl || !this.cardFrontUrl || !this.cardOppositeUrl) {
-                        this.$message.warning('请上传证明信息!');
-                        return false;
-                    }
+                    const result = await User.verify(this.verifyForm);
                     this.$message.success('提交成功!');
+                    this.$router.push({path: "/user"});
                 } else {
                     console.log('error submit!!');
                     return false;
@@ -67,36 +94,39 @@ export default {
             <el-form-item label="身份证号: " prop="card_id">
                 <el-input v-model="verifyForm.card_id" placeholder="请输入身份证号码"></el-input>
             </el-form-item>
-            <el-form-item label="房地产证明" prop="identity_url">
+            <el-form-item label="房地产证明" prop="identity_pic">
                 <el-upload
                     class="avatar-uploader"
-                    action="https://jsonplaceholder.typicode.com/posts/"
+                    :action="uploadUrl"
+                    :headers="auth"
                     :show-file-list="false"
                     :on-success="handleSuccess1"
                     :before-upload="beforeUpload">
-                    <img v-if="identityUrl" :src="identityUrl" class="avatar">
+                    <img v-if="idUrl" :src="idUrl" class="avatar">
                     <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                 </el-upload>
             </el-form-item>
-            <el-form-item label="身份证正面: ">
+            <el-form-item label="身份证正面: " prop="card_front">
                 <el-upload
                     class="avatar-uploader"
-                    action="https://jsonplaceholder.typicode.com/posts/"
+                    :action="uploadUrl"
+                    :headers="auth"
                     :show-file-list="false"
                     :on-success="handleSuccess2"
                     :before-upload="beforeUpload">
-                    <img v-if="cardFrontUrl" :src="cardFrontUrl" class="avatar">
+                    <img v-if="cardFUrl" :src="cardFUrl" class="avatar">
                     <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                 </el-upload>
             </el-form-item>
-            <el-form-item label="身份证反面: ">
+            <el-form-item label="身份证反面: " prop="card_opposite">
                 <el-upload
                     class="avatar-uploader"
-                    action="https://jsonplaceholder.typicode.com/posts/"
+                    :action="uploadUrl"
+                    :headers="auth"
                     :show-file-list="false"
                     :on-success="handleSuccess3"
                     :before-upload="beforeUpload">
-                    <img v-if="cardOppositeUrl" :src="cardOppositeUrl" class="avatar">
+                    <img v-if="cardOUrl" :src="cardOUrl" class="avatar">
                     <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                 </el-upload>
             </el-form-item>

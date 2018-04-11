@@ -14,23 +14,9 @@ export default {
             loginState: false
         };
     },
-    async created() {
-        // 获取用户信息
-        try {
-            await this.GetInfo();
-        } catch (err) {
-            console.log(err);
-        }
-        console.log(Object.keys(this.user).length);
-    },
     async mounted() {
         // 获取用户信息
-        try {
-            await this.GetInfo();
-        } catch (err) {
-            console.log(err);
-        }
-        // console.log(Object.keys(this.user).length);
+        await this.GetInfo();
     },
     components: {
         login
@@ -92,15 +78,15 @@ export default {
                         <!-- <div v-if="!Object.keys(this.user).length" class="button" @click="loginShow=true;">登录 / 注册</div> -->
 
                         <el-dropdown v-if="Object.keys(this.user).length">
-                          <el-button>
-                            <img src="/static/images/user_avatar.png">
-                            <span>{{user.username}}</span>
-                            <i class="el-icon-caret-bottom"></i>
-                          </el-button>
-                          <el-dropdown-menu slot="dropdown">
-                            <a href="/admin/#/index"><el-dropdown-item>管理后台</el-dropdown-item></a>
-                            <el-dropdown-item><span @click="logout">安全退出</span></el-dropdown-item>
-                          </el-dropdown-menu>
+                            <el-button>
+                                <img src="/static/images/user_avatar.png">
+                                <span>{{user.name}}</span>
+                                <i class="el-icon-caret-bottom"></i>
+                            </el-button>
+                            <el-dropdown-menu slot="dropdown">
+                                <router-link to="/user"><el-dropdown-item>个人中心</el-dropdown-item></router-link>
+                                <el-dropdown-item><span @click="logout">安全退出</span></el-dropdown-item>
+                            </el-dropdown-menu>
                         </el-dropdown>
                     </div>
                     <ul class="head-menu">

@@ -53,11 +53,11 @@ export default {
                     </div>
                     <router-link tag="div" to="/communications/detail">
                         <div class="questionTitle">
-                            我们现在有公交车700辆左右，安装显示器的有400辆，但是能够有效播放的只有一半，声音也很小！平时的维修都是交给当地的公交公司做的，公交公司维护的很不上心，怎样才能保证播放质量？
+                            光线变化对识别效果影响大吗？
                         </div>
                         <div class="richContent">
                             <div>
-                                维修交给别人你无法管控，我们要求驾驶员报上来的维修不能超过12小时，一般都是报修三小时内解决，不能让它黑屏在路上，我们无法预估有多少潜在的客户在那辆车上！我们专门组建了车队长的微信群，公交车上给他们点个歌，让驾驶员跟售票员们互动点歌，减小了
+                                我觉得影响是肯定有的, 具体影响多少应该看光的强度, 毕竟人脸识别不是百分百准确, 不过正常的通行肯定能保证.
                                 <span> 查看更多 >></span>
                             </div>
                         </div>
@@ -66,7 +66,39 @@ export default {
                         <ul>
                             <li>
                                 <img src="/static/images/dianzan.png">
-                                100 个赞
+                                10 个赞
+                            </li>
+                            <li>
+                                <img src="/static/images/pingluen.png">
+                                1 条评论
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card questionItem">
+                    <div class="authorInfo">
+                        <img src="/static/images/user_avatar.png">
+                        <div>
+                            <span>爱吃菜的小女孩</span>
+                            <span class="adress_info">浙江-绍兴-幸福花园小区</span>
+                        </div>
+                    </div>
+                    <router-link tag="div" to="/communications/detail">
+                        <div class="questionTitle">
+                            部分老年人还是不习惯刷脸开门
+                        </div>
+                        <div class="richContent">
+                            <div>
+                                我觉得这很正常, 老人都有自己固定的思维, 毕竟生活在科技不是很发达的过去, 或多或少会接受不了现在的新新事物, 不过人脸识别确实给老人门带来了很大的便利
+                                <span> 查看更多 >></span>
+                            </div>
+                        </div>
+                    </router-link>
+                    <div class="actions">
+                        <ul>
+                            <li>
+                                <img src="/static/images/dianzan.png">
+                                12 个赞
                             </li>
                             <li>
                                 <img src="/static/images/pingluen.png">
@@ -87,32 +119,16 @@ export default {
                         <li>
                             <div class="areaName">浙江-绍兴</div>
                             <div class="mainContent">
-                                出彩小明星活动进行中。
+                                部分老年人还是不习惯刷脸开门
                             </div>
                             <!-- <div class="time">2017-12-21</div> -->
                         </li>
                         <li>
-                            <div class="areaName">四川-眉山</div>
+                            <div class="areaName">浙江-绍兴</div>
                             <div class="mainContent">
-                                新增终端车辆107辆，设备已全部安装。
+                                光线变化对识别效果影响大吗？
                             </div>
                             <!-- <div class="time">2017-12-21</div> -->
-                        </li>
-                        <li>
-                            <div class="areaName">浙江-余姚</div>
-                            <div class="mainContent">设备无法安装在车顶中央怎么办？</div>
-                        </li>
-                        <li>
-                            <div class="areaName">海南-三亚</div>
-                            <div class="mainContent">
-                                司机会拔线，发动机声音大，声音这一块如何维护？
-                            </div>
-                        </li>
-                        <li>
-                            <div class="areaName">贵州-贵阳</div>
-                            <div class="mainContent">
-                                大家有没有更好的销售模式可以借鉴一下。
-                            </div>
                         </li>
                     </ul>
                 </div>

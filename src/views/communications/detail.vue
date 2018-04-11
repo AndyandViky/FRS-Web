@@ -22,10 +22,10 @@ export default {
             <div class="container">
                 <div class="authorInfo">
                     <img src="/static/images/user_avatar.png">
-                    <div>问题作者名</div>
+                    <div>爱吃菜的小女孩</div>
                 </div>
                 <div class="questionTitle">
-                    问题名称可能会很长，长到超出一行那就换行显示。问题名称可能会很长，长到超出一行那就换行显示。
+                    光线变化对识别效果影响大吗？
                 </div>
             </div>
         </div>
@@ -35,7 +35,7 @@ export default {
                     <div class="AnswerInput card">
                         <div class="userInfo">
                             <img src="/static/images/user_avatar.png">
-                            <div>回答者名称</div>
+                            <div>andy</div>
                             <div class="button">提交</div>
                         </div>
                         <div class="inputArea">
@@ -44,21 +44,21 @@ export default {
                     </div>
                     <div class="AnswerList card">
                         <div class="listTop">
-                            <div>100 个回答</div>
+                            <div>1 个回答</div>
                         </div>
-                        <div class="listItem" v-for="i in 10">
+                        <div class="listItem" v-for="i in 1">
                             <div class="authorInfo">
-                                <img src="/static/images/user_avatar.png">
-                                <div>问题作者名</div>
+                                <img src="/static/images/a.jpg">
+                                <div>小杨</div>
                                 <div class="time">
-                                    2017-12-15
+                                    2018-4-10
                                 </div>
                             </div>
                             <div class="questionTitle">
-                                问题名称可能会很长，长到超出一行那就换行显示。问题名称可能会很长，长到超出一行那就换行显示。
+                                我觉得影响是肯定有的, 具体影响多少应该看光的强度, 毕竟人脸识别不是百分百准确, 不过正常的通行肯定能保证.
                             </div>
                         </div>
-                        <v-pagination></v-pagination>
+                        <v-pagination :total="1"></v-pagination>
                     </div>
                 </div>
                 <div class="wrapper_right">
@@ -84,6 +84,7 @@ export default {
                 height: 50px;
                 width: 50px;
                 margin-right: 10px;
+                border-radius: 100%;
             }
         }
         .questionTitle{
@@ -157,6 +158,7 @@ export default {
                             height: 50px;
                             width: 50px;
                             margin-right: 10px;
+                            border-radius: 100%;
                         }
                         .time{
                             position: absolute;

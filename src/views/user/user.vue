@@ -1,7 +1,7 @@
 <template>
     <div class="user_box">
         <ul class="left">
-            <li class="menu_item" @click="currentIndex=index" v-for="(item, index) in menuData" :key="index" :class="{item_bg: index===currentIndex}">{{item.title}}</li>
+            <li class="menu_item" @click="getMenu(index)" v-for="(item, index) in menuData" :key="index" :class="{item_bg: index===currentIndex}">{{item.title}}</li>
         </ul>
         <div class="right menu_desc">
             <div class="user_info" v-if="currentIndex===menuEnum.info.value">
@@ -19,13 +19,13 @@
                     ]"
                     >
                         <el-radio-group v-model="userForm.gender">
-                            <el-radio label="男"></el-radio>
-                            <el-radio label="女"></el-radio>
+                            <el-radio :label="0">男</el-radio>
+                            <el-radio :label="1">女</el-radio>
                         </el-radio-group>
                     </el-form-item>
                     <el-form-item label="年龄" prop="age"
                     :rules="[
-                        { required: true, message: '年龄不能为空'},
+                        { required: true, message: '年龄不能为空', trigger: 'blur'},
                     ]"
                     >
                         <el-input v-model="userForm.age"></el-input>
@@ -33,7 +33,6 @@
                     <el-form-item label="邮箱" prop="email"
                     :rules="[
                         { required: true, message: '请输入邮箱地址', trigger: 'blur' },
-                        { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur,change' }
                     ]">
                         <el-input v-model="userForm.email"></el-input>
                     </el-form-item>
@@ -52,7 +51,7 @@
                             :show-file-list="false"
                             :on-success="handleAvatarSuccess"
                             :before-upload="beforeAvatarUpload">
-                            <img v-if="imageUrl" :src="imageUrl" class="avatar">
+                            <img v-if="userForm.avatar" :src="userForm.avatar" class="avatar">
                             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                         </el-upload>
                     </el-form-item>
@@ -68,19 +67,22 @@
                     </li>
                 </ul>
                 <div class="clear"></div>
-                <ul v-if="visitorData1.length > 0">
-                    <li class="visitor_list" v-for="(item, index) in visitorData1" :key="index">
+                <ul v-if="visitorData.length > 0">
+                    <li class="visitor_list" v-for="(item, index) in visitorData" :key="index">
                         <img src="/static/images/user_avatar.png" alt="" class="left" width="60px" height="60px">
-                        <span class="visitor_name">{{item.name}}</span>
+                        <!-- <span class="visitor_name">{{item.name}}</span>
                         <span v-if="item.gender === 0">男</span>
-                        <span v-if="item.gender === 1">女</span>
-                        <span>年龄: {{item.age}}</span>
-                        <span>申请时间: <span style="font-size: 15px; color: #999;margin-left:10px;">{{item.apply_time}}</span></span>
+                        <span v-if="item.gender === 1">女</span> -->
+                        <span class="visitor_name">杨林</span>
+                        <span v-if="item.gender === 0">男</span>
+                        <span>年龄: 20</span>
+                        <span>天数: <span style="font-size: 15px; color: #999;margin-left:10px;">{{item.deadline}}</span></span>
+                        <span>申请时间: <span style="font-size: 15px; color: #999;margin-left:10px;">{{item.created_at}}</span></span>
                         <el-button class="list_button" type="primary" size="small" v-if="item.status === 0" @click="passApply(index)">通过</el-button>
                         <el-button class="list_button" type="danger" size="small" v-if="item.status > 0" @click="deleteApply(index)">删除</el-button>
                     </li>
                 </ul>
-                <v-pagination :total="10" v-if="visitorData.length>0"></v-pagination>
+                <v-pagination :total="visitorTotal" v-if="visitorData.length>0"></v-pagination>
             </div>
             <div class="bug_apply" v-if="currentIndex===menuEnum.bug.value">
                 <el-form class="bug_form" ref="bug_form" :model="bugForm" label-width="80px">
@@ -89,19 +91,21 @@
                         required: true, message: '标题不能为空', trigger: 'blur'
                     }"
                     >
-                        <el-input v-model="bugForm.title"></el-input>
+                        <el-input placeholder="请输入故障标题" v-model="bugForm.title"></el-input>
                     </el-form-item>
                      <el-form-item label="故障内容" prop="content" 
                     :rules="{
                         required: true, message: '内容不能为空', trigger: 'blur'
                     }"
                     >
-                        <el-input type="textarea" v-model="bugForm.content"></el-input>
+                        <el-input placeholder="请输入故障内容" type="textarea" v-model="bugForm.content"></el-input>
                     </el-form-item>
                     <el-form-item label="故障图片">
                         <el-upload
+                            :headers="auth"
                             class="avatar-uploader"
-                            action="https://jsonplaceholder.typicode.com/posts/"
+                            action="http://localhost:8000/image"
+                            :data="bugType"
                             :show-file-list="false"
                             :on-success="handleBugSuccess"
                             :before-upload="beforeBugUpload">
@@ -122,12 +126,21 @@
                             <div class="image_mark" v-show="showImageMark"></div>
                             <i class="el-icon-close delete_image" v-show="showImageMark" @click="deleteImage(index)"></i>
                             <el-checkbox :label="item.id" v-show="showImageMark" class="image_check" name="imageCheckBox"></el-checkbox>
-                            <img :src="item.img" alt="">
+                            <img :src="item.model_image" alt="">
                         </li>
                     </el-checkbox-group>
+                    <el-upload
+                        :headers="auth"
+                        class="avatar-uploader face_image"
+                        action="http://localhost:8000/face"
+                        :show-file-list="false"
+                        :on-success="handleFaceSuccess"
+                        :before-upload="beforeFaceUpload">
+                        <i class="el-icon-plus avatar-uploader-icon"></i>
+                    </el-upload>
                 </ul>
                 <div class="clear"></div>
-                <v-pagination :total="10" v-if="visitorData.length>0"></v-pagination>
+                <v-pagination :total="10" v-if="faceData.length>0"></v-pagination>
             </div>
             <div class="face_record" v-if="currentIndex===menuEnum.faceRecord.value">
                 <ul>
@@ -136,16 +149,16 @@
                     </li>
                 </ul>
                 <div class="clear"></div>
-                <ul v-if="recordData1.length > 0">
-                    <li class="record_list" v-for="(item, index) in recordData1" :key="index">
-                        <span v-if="item.status === 0">进入方式: app</span>
-                        <span v-if="item.status === 1">进入方式: camera</span>
+                <ul v-if="recordData.length > 0">
+                    <li class="record_list" v-for="(item, index) in recordData" :key="index">
+                        <span v-if="item.type === 0">进入方式: camera</span>
+                        <span v-if="item.type === 1">进入方式: app</span>
                         <span>人数: {{item.count}}</span>
                         <span>进入时间: <span style="font-size: 15px; color: #999;margin-left:10px;">{{item.created_at}}</span></span>
                         <el-button class="list_button" type="danger" size="small" @click="deleteRecord(index)">删除</el-button>
                     </li>
                 </ul>
-                <v-pagination :total="10" v-if="visitorData.length>0"></v-pagination>
+                <v-pagination :total="10" v-if="recordData.length>0"></v-pagination>
             </div>
             <div class="change_pwd" v-if="currentIndex===menuEnum.password.value">
                 <el-form class="pwd_form" ref="pwd_form" :model="pwdForm" label-width="120px">
@@ -212,6 +225,10 @@
 </template>
 <script>
 import Pagination from '@/components/pagination';
+import {mapState, mapActions} from 'vuex';
+import {baseUrl} from '@/help/env';
+import store from '@/store';
+import { User, Bug } from '@/api';
 export default {
     name: 'user',
     components: {
@@ -222,6 +239,14 @@ export default {
             currentIndex: 0,
             visitorCurrentIndex: 0,
             recordCurrentIndex: 0,
+            visitorTotal: 0,
+            recordTotal: 0,
+            bugType: {
+                type: 'bug'
+            },
+            auth: {
+                authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZWxmSWQiOjIsImlhdCI6MTUyMzM1MzA5OSwiZXhwIjoxNTI0MjE3MDk5fQ.TtmIHDbSfLoRXeA88u7mZBV6--4q8T9ml-O58q6TEjE'
+            },
             // 所有的地址
             adress: [
                 {
@@ -274,10 +299,10 @@ export default {
                     id: 5,
                     title: "密码修改",
                 },
-                {
-                    id: 6,
-                    title: "访问申请",
-                }
+                // {
+                //     id: 6,
+                //     title: "访问申请",
+                // }
             ],
             menuEnum: {
                 info: {
@@ -310,10 +335,6 @@ export default {
                 }
             },
             userForm: {
-                name: '杨霖',
-                gender: '男',
-                age: 22,
-                phone: '17805850721',
             },
             pwdForm: {
                 oldPassword: '',
@@ -321,8 +342,9 @@ export default {
                 newPassword1: '',
             },
             bugForm: {
-                title: '门禁准确率',
-                content: '门禁准确率'
+                title: '',
+                content: '',
+                paths: '',
             },
             applyForm: {
                 adress: [],
@@ -348,32 +370,7 @@ export default {
                 }
             ],
             visitorData: [
-                {
-                    id: 1,
-                    status: 0,
-                    name: '王万金',
-                    age: 30,
-                    gender: 1,
-                    apply_time: '2017-10-22 12:22',
-                },
-                {
-                    id: 2,
-                    status: 1,
-                    name: '陈李娜',
-                    age: 20,
-                    gender: 1,
-                    apply_time: '2017-10-22 12:22',
-                },
-                {
-                    id: 3,
-                    status: 2,
-                    name: '黄雯婕',
-                    age: 18,
-                    gender: 1,
-                    apply_time: '2017-10-22 12:22',
-                }
             ],
-            visitorData1: [],
             recordMenu: [
                 {
                     id: 0,
@@ -389,43 +386,8 @@ export default {
                 },
             ],
             recordData: [
-                {
-                    id: 0,
-                    count: 2,
-                    status: 0,
-                    created_at: '2017-10-22 12:22',
-                },
-                {
-                    id: 1,
-                    count: 2,
-                    status: 1,
-                    created_at: '2017-10-22 12:22',
-                },
-                {
-                    id: 2,
-                    count: 2,
-                    status: 1,
-                    created_at: '2017-10-22 12:22',
-                },
             ],
-            recordData1: [],
             faceData: [
-                {
-                    id: 1,
-                    img: "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2201846336,2134716287&fm=200&gp=0.jpg"
-                },
-                {
-                    id: 2,
-                    img: "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2201846336,2134716287&fm=200&gp=0.jpg"
-                },
-                {
-                    id: 3,
-                    img: "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2201846336,2134716287&fm=200&gp=0.jpg"
-                },
-                {
-                    id: 4,
-                    img: "https://ss3.bdstatic.com/70cFv8Sh_Q1YnxGkpoWK1HF6hhy/it/u=2201846336,2134716287&fm=200&gp=0.jpg"
-                }
             ],
             // ------
             editImageText: '编辑',
@@ -433,11 +395,33 @@ export default {
             imageCheckBox: [],
         };
     },
-    created() {
-        this.visitorData1 = this.visitorData;
-        this.recordData1 = this.recordData;
+    mounted() {
+        if (this.$store.getters.residentAuth === 0) {
+            this.$router.push({path: "/verify"});
+        }
+        this.userForm = this.$store.getters.user;
     },
     methods: {
+        async getMenu(index) {
+            this.currentIndex = index;
+            switch (index) {
+            case 0:
+                this.userForm = this.$store.getters.user;
+                break;
+            case 1: // 获取访客
+                this.getVisitorByStatus();
+                break;
+            case 3: // 图像管理
+                this.faceData = await User.getFaceModel();
+                for (const face of this.faceData) {
+                    face.model_image = baseUrl + face.model_image.substring(6);
+                }
+                break;
+            case 4: // 门禁记录
+                this.getRecordByStatus();
+                break;
+            }
+        },
         onSubmit() {
             this.$refs["user_form"].validate((valid) => {
                 if (valid) {
@@ -449,8 +433,11 @@ export default {
             });
         },
         postBug() {
-            this.$refs["bug_form"].validate((valid) => {
+            this.$refs["bug_form"].validate(async (valid) => {
                 if (valid) {
+                    await Bug.addBug(this.bugForm);
+                    this.bugForm = {};
+                    this.bugImageUrl = "";
                     this.$message.success('提交成功!');
                 } else {
                     console.log('error submit!!');
@@ -459,9 +446,42 @@ export default {
             });
         },
         handleAvatarSuccess(res, file) {
-            this.imageUrl = URL.createObjectURL(file.raw);
+            this.userForm.avatar = URL.createObjectURL(file.raw);
         },
         beforeAvatarUpload(file) {
+            const isJPG = file.type === 'image/jpeg';
+            const isLt2M = file.size / 1024 / 1024 < 2;
+
+            if (!isJPG) {
+                this.$message.error('上传头像图片只能是 JPG 格式!');
+            }
+            if (!isLt2M) {
+                this.$message.error('上传头像图片大小不能超过 2MB!');
+            }
+            return isJPG && isLt2M;
+        },
+        handleBugSuccess(res, file) {
+            this.bugForm.path = res.data.path;
+            this.bugImageUrl = URL.createObjectURL(file.raw);
+        },
+        beforeBugUpload(file) {
+            const isLt2M = file.size / 1024 / 1024 < 2;
+
+            if (!isLt2M) {
+                this.$message.error('上传头像图片大小不能超过 2MB!');
+            }
+            return isLt2M;
+        },
+        async handleFaceSuccess(res, file) {
+            if (res.code === -1) {
+                return this.$message.error(res.msg);
+            }
+            this.faceData = await User.getFaceModel();
+            for (const face of this.faceData) {
+                face.model_image = baseUrl + face.model_image.substring(6);
+            }
+        },
+        beforeFaceUpload(file) {
             const isJPG = file.type === 'image/jpeg';
             const isLt2M = file.size / 1024 / 1024 < 2;
 
@@ -483,64 +503,94 @@ export default {
                 }
             });
         },
-        filterVisitorData(index) {
+        async filterVisitorData(index) {
             this.visitorCurrentIndex = index;
-            this.visitorData1 = [];
             switch (index) {
             case 0:
-                this.visitorData1 = this.visitorData;
+                this.getVisitorByStatus();
                 break;
             case 1:
-                this.visitorData1 = this.getDataByStatus(this.visitorData, 1);
+                this.getVisitorByStatus(1);
                 break;
             case 2:
-                this.visitorData1 = this.getDataByStatus(this.visitorData, 0);
+                this.getVisitorByStatus(0);
                 break;
             case 3:
-                this.visitorData1 = this.getDataByStatus(this.visitorData, 2);
+                this.getVisitorByStatus(2);
                 break;
             }
         },
         filterRecordData(index) {
             this.recordCurrentIndex = index;
-            this.recordData1 = [];
             switch (index) {
             case 0:
-                this.recordData1 = this.recordData;
+                this.getRecordByStatus();
                 break;
             case 1:
-                this.recordData1 = this.getDataByStatus(this.recordData, 0);
+                this.getRecordByStatus(0);
                 break;
             case 2:
-                this.recordData1 = this.getDataByStatus(this.recordData, 1);
+                this.getRecordByStatus(1);
                 break;
             }
         },
+        async getVisitorByStatus(status) {
+            const data = {
+                pageNo: 1,
+                pageSize: 10,
+            };
+            if (status) data.status = status;
+            const visitors = await User.getVisitors(data);
+            this.visitorData = visitors.datas;
+            this.visitorTotal = visitors.total;
+            console.log(this.visitorData);
+        },
+        async getRecordByStatus(status) {
+            const data = {
+                pageNo: 1,
+                pageSize: 10,
+            };
+            if (status >= 0) data.type = status;
+            const result = await User.getCameraRecords(data);
+            this.recordData = result.datas;
+            this.recordTotal = result.total;
+            console.log(result);
+        },
         deleteRecord(index) {
-            this.$alert('是否删所访客记录?', '删除数据', {
+            this.$alert('是否删除访客记录?', '删除数据', {
                 confirmButtonText: '确定',
                 callback: action => {
-                    this.recordData1.splice(index, 1);
-                    this.$message.success("删除成功");
+                    if (action === 'confirm') {
+                        this.recordData.splice(index, 1);
+                        this.$message.success("删除成功");
+                    }
                 }
             });
         },
-        getDataByStatus(content, status) {
-            let data = [];
-            for (let item of content) {
-                if (item.status === status) {
-                    data.push(item);
-                }
-            }
-            return data;
-        },
         passApply(index) {
-            this.visitorData1[index].status = 1;
-            this.$message.success('审核成功!');
+            this.$alert('是否通过此次申请?', '取消', {
+                confirmButtonText: '确定',
+                callback: async action => {
+                    if (action === 'confirm') {
+                        await User.approveVisitor({
+                            visitorId: this.visitorData[index].id
+                        });
+                        this.visitorData[index].status = 1;
+                        this.$message.success('审核成功!');
+                    }
+                }
+            });
         },
         deleteApply(index) {
-            this.visitorData1.splice(index, 1);
-            this.$message.success('删除成功!');
+            this.$alert('是否删除访问记录?', '删除数据', {
+                confirmButtonText: '确定',
+                callback: action => {
+                    if (action === 'confirm') {
+                        this.recordData.splice(index, 1);
+                        this.$message.success("删除成功");
+                    }
+                }
+            });
         },
         editImage() {
             if (this.editImageText === "编辑") {
@@ -555,15 +605,18 @@ export default {
             this.$alert('是否删所选人脸图片?', '删除图片', {
                 confirmButtonText: '确定',
                 callback: action => {
-                    this.faceData.splice(index, 1);
-                    this.$message.success("删除成功");
+                    if (action === 'confirm') {
+                        this.faceData.splice(index, 1);
+                        this.$message.success("删除成功");
+                    }
                 }
             });
         },
         postApply() {
             // 提交申请信息
-            this.$refs["apply_form"].validate((valid) => {
+            this.$refs["apply_form"].validate(async (valid) => {
                 if (valid) {
+                    await User.applyVisite(this.applyForm);
                     this.$message.success('提交成功!');
                 } else {
                     console.log('error submit!!');
@@ -702,6 +755,17 @@ export default {
             margin-top: 20px;
             .image_button{
                 margin-bottom: 10px;
+            }
+            .face_image{
+                width: 220px;
+                height: 300px;
+                margin-left: 20px;
+                float: left;
+                .avatar-uploader-icon{
+                    width: 220px;
+                    height: 300px;
+                    line-height: 300px;
+                }
             }
             .image_item{
                 width: 220px;

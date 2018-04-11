@@ -5,6 +5,7 @@ import axios from 'axios';
 import qs from 'qs';
 import { getToken } from '@/help/auth';
 import store from '@/store';
+import { Message } from 'element-ui';
 
 // axios 配置
 axios.defaults.timeout = 5000;
@@ -14,29 +15,25 @@ axios.defaults.baseURL = baseUrl;
 // POST传参序列化
 axios.interceptors.request.use((config) => {
     config.headers['Content-Type'] = 'application/json';
-    // if (config.method === 'post') {
-    //     config.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-    //     config.data = qs.stringify(config.data);
+    // if (store.getters.token) {
+    //     config.headers['authorization'] = 'Bearer ' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZWxmSWQiOjIsImlhdCI6MTUyMzMzOTQwNywiZXhwIjoxNTI0MjAzNDA3fQ.tWUoC3fCuDXOExtmdnInYd44kR-Qvjvwe9Zu8LuzkPo'; // 让每个请求携带token--['X-Token']为自定义key 请根据实际情况自行修改
     // }
-    // console.log(store.getters.token);
-    if (store.getters.token) {
-        // console.log("1");
-        config.headers['authorization'] = 'Bearer ' + getToken(); // 让每个请求携带token--['X-Token']为自定义key 请根据实际情况自行修改
-    }
+    config.headers['authorization'] = 'Bearer ' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZWxmSWQiOjIsImlhdCI6MTUyMzM1MzA5OSwiZXhwIjoxNTI0MjE3MDk5fQ.TtmIHDbSfLoRXeA88u7mZBV6--4q8T9ml-O58q6TEjE'; // 让每个请求携带token--['X-Token']为自定义key 请根据实际情况自行修改
     return config;
 }, (error) => {
-    console.log('错误的传参');
+    Message.error('网络异常');
     return Promise.reject(error);
 });
 
 // 返回状态判断
 axios.interceptors.response.use((res) => {
-    if (!res.data.success) {
+    if (res.data.code !== 1) {
+        Message.error('请求失败');
         return Promise.reject(res);
     }
     return res;
 }, (error) => {
-    // console.log('网络异常');
+    Message.error('网络异常');
     return Promise.reject(error);
 });
 
@@ -46,26 +43,16 @@ export function request(api, datas, method = 'get') {
         params = datas;
     } else {
         data = datas;
-        // console.log(data);
     }
     return new Promise((resolve, reject) => {
         axios.request({
             url: api,
             method: method,
-            // headers: {
-            //     'Content-Type': 'application/json'
-            // },
             params: params,
             data: data
         }).then(response => {
             const res = response.data;
-            if (res.success) {
-                resolve(res.data);
-            } else {
-                reject(res.error);
-            }
-        }, err => {
-            reject(err);
+            resolve(res.data);
         })
         .catch((error) => {
             reject(error);

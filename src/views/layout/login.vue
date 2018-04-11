@@ -1,5 +1,5 @@
 <script>
-import {login, getVCode, registerForTourist, registerForAdvertiser} from '@/help/api';
+import { User } from '@/api';
 import userHelp from '@/help/userHelp';
 import {mapState, mapActions} from 'vuex';
 const TIME_COUNT = 60;
@@ -75,7 +75,7 @@ export default {
             }
             const password = userHelp.encryptionPassword(this.loginForm.password);
             try {
-                let res = await login({usercode: this.loginForm.usercode, password: password});
+                let res = await User.login({usercode: this.loginForm.usercode, password: password});
                 await this.$store.dispatch('SetToken', res);
                 this.GetInfo();
                 this.show = false;
@@ -127,48 +127,14 @@ export default {
                         message: '公司名不能为空!'
                     });
                 }
-                try {
-                    let result = await registerForAdvertiser({phone: this.registerForm.phone, password: password, user_adress: this.registerForm.user_adress, vCode: this.registerForm.vCode});
-                    this.operation = 0;
-                    this.$message({
-                        type: 'success',
-                        message: '注册成功，请登录'
-                    });
-                } catch (err) {
-                    // console.log(err);
-                    this.r_message = err.data.error;
-                }
-            } else {
-                try {
-                    let result = await registerForTourist({phone: this.registerForm.phone, password: password, vCode: this.registerForm.vCode});
-                    this.operation = 0;
-                    this.$message({
-                        type: 'success',
-                        message: '注册成功，请登录'
-                    });
-                } catch (err) {
-                    // console.log(err);
-                    this.r_message = err.data.error;
-                }
             }
-        },
-        async sendVCode() {
-            console.log(this.registerForm.phone.length);
             try {
-                let result = await getVCode({phone: this.registerForm.phone});
-                if (!this.timer) {
-                    this.count = TIME_COUNT;
-                    this.codeBtnShow = false;
-                    this.timer = setInterval(() => {
-                        if (this.count > 0 && this.count <= TIME_COUNT) {
-                            this.count--;
-                        } else {
-                            this.codeBtnShow = true;
-                            clearInterval(this.timer);
-                            this.timer = null;
-                        }
-                    }, 1000);
-                }
+                let result = await User.register({phone: this.registerForm.phone, password: password, user_adress: this.registerForm.user_adress, vCode: this.registerForm.vCode});
+                this.operation = 0;
+                this.$message({
+                    type: 'success',
+                    message: '注册成功，请登录'
+                });
             } catch (err) {
                 // console.log(err);
                 this.r_message = err.data.error;

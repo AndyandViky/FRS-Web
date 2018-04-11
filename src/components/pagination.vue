@@ -1,5 +1,4 @@
 <script>
-import { categoryNews, newsList } from '@/help/api';
 import { DateFormat } from '@/help/verification';
 export default {
     name: 'pagination',

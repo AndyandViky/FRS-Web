@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import { getToken, setToken, removeToken } from '@/help/auth.js';
-import {userInfo} from '@/help/api';
+import { User } from '../api';
 
 Vue.use(Vuex);
 
@@ -13,6 +13,8 @@ const state = {
 
 const getters = {
     token: state => state.token,
+    residentAuth: state => state.user.types,
+    user: state => state.user
 };
 
 const mutations = {
@@ -40,9 +42,9 @@ const actions = {
     // 获取用户信息
     GetInfo({ commit, state }) {
         return new Promise((resolve, reject) => {
-            userInfo().then(result => {
-                const user = result;
-                commit('SET_USER', user);
+            User.userInfo().then(result => {
+                commit('SET_USER', result);
+                console.log(result);
                 resolve(result);
             }).catch(error => {
                 reject(error);
