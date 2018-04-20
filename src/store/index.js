@@ -13,7 +13,7 @@ const state = {
 
 const getters = {
     token: state => state.token,
-    residentAuth: state => state.user.types,
+    residentAuth: state => state.user.is_verify,
     user: state => state.user
 };
 

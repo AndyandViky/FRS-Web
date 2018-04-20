@@ -82,6 +82,7 @@
                         <el-button class="list_button" type="danger" size="small" v-if="item.status > 0" @click="deleteApply(index)">删除</el-button>
                     </li>
                 </ul>
+                <span v-if="visitorData.length === 0" class="no_data">暂无数据</span>
                 <v-pagination :total="visitorTotal" v-if="visitorData.length>0"></v-pagination>
             </div>
             <div class="bug_apply" v-if="currentIndex===menuEnum.bug.value">
@@ -158,6 +159,7 @@
                         <el-button class="list_button" type="danger" size="small" @click="deleteRecord(index)">删除</el-button>
                     </li>
                 </ul>
+                <span v-if="recordData.length === 0" class="no_data">暂无数据</span>
                 <v-pagination :total="10" v-if="recordData.length>0"></v-pagination>
             </div>
             <div class="change_pwd" v-if="currentIndex===menuEnum.password.value">
@@ -245,7 +247,7 @@ export default {
                 type: 'bug'
             },
             auth: {
-                authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZWxmSWQiOjIsImlhdCI6MTUyMzM1MzA5OSwiZXhwIjoxNTI0MjE3MDk5fQ.TtmIHDbSfLoRXeA88u7mZBV6--4q8T9ml-O58q6TEjE'
+                authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZWxmSWQiOjU5NSwiaWF0IjoxNTIzNTUzNDEzLCJleHAiOjE1MjQ0MTc0MTN9.DU1W-hagVJg7ts1GUNPSQREZiLFYZyq8ryLyNY9n0kA'
             },
             // 所有的地址
             adress: [
@@ -474,7 +476,7 @@ export default {
         },
         async handleFaceSuccess(res, file) {
             if (res.code === -1) {
-                return this.$message.error(res.msg);
+                return this.$message.error(res.data);
             }
             this.faceData = await User.getFaceModel();
             for (const face of this.faceData) {
@@ -638,6 +640,13 @@ export default {
 }
 .avatar-uploader .el-upload:hover {
     border-color: #409EFF;
+}
+.no_data{
+    display: block;
+    font-size: 30px;
+    color: #ccc;
+    text-align: center;
+    padding-top: 100px;
 }
 .avatar-uploader-icon {
     font-size: 28px;
