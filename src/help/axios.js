@@ -18,7 +18,7 @@ axios.interceptors.request.use((config) => {
     // if (store.getters.token) {
     //     config.headers['authorization'] = 'Bearer ' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZWxmSWQiOjIsImlhdCI6MTUyMzMzOTQwNywiZXhwIjoxNTI0MjAzNDA3fQ.tWUoC3fCuDXOExtmdnInYd44kR-Qvjvwe9Zu8LuzkPo'; // 让每个请求携带token--['X-Token']为自定义key 请根据实际情况自行修改
     // }
-    config.headers['authorization'] = 'Bearer ' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZWxmSWQiOjU5NSwiaWF0IjoxNTIzNTUzNDEzLCJleHAiOjE1MjQ0MTc0MTN9.DU1W-hagVJg7ts1GUNPSQREZiLFYZyq8ryLyNY9n0kA'; // 让每个请求携带token--['X-Token']为自定义key 请根据实际情况自行修改
+    config.headers['authorization'] = 'Bearer ' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZWxmSWQiOjU5NSwiaWF0IjoxNTI0MjM1OTA0LCJleHAiOjE1MjUwOTk5MDR9.9eL_3L4pD_mGaLt1OTsJESDhnB3iQF-gI-GZGiKBXjI'; // 让每个请求携带token--['X-Token']为自定义key 请根据实际情况自行修改
     return config;
 }, (error) => {
     Message.error('网络异常');

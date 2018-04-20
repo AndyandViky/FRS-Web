@@ -1,5 +1,5 @@
 <script>
-import {baseUrl, imgBaseUrl, dataImgUrl} from '@/help/env';
+import {baseUrl} from '@/help/env';
 import login from '@/views/layout/login';
 import {mapState, mapActions} from 'vuex';
 export default {
@@ -7,8 +7,6 @@ export default {
     data () {
         return {
             baseUrl,
-            imgBaseUrl,
-            dataImgUrl,
             newsCategory: null,
             loginShow: false,
             loginState: false
@@ -75,11 +73,11 @@ export default {
                     <div class="right head-right">
 
                         <login v-if="!Object.keys(this.user).length"></login>
-                        <!-- <div v-if="!Object.keys(this.user).length" class="button" @click="loginShow=true;">登录 / 注册</div> -->
 
                         <el-dropdown v-if="Object.keys(this.user).length">
                             <el-button>
-                                <img src="/static/images/user_avatar.png">
+                                <img v-if="!user.avatar" src="/static/images/user_avatar.png">
+                                <img v-else :src="user.avatar">
                                 <span>{{user.name}}</span>
                                 <i class="el-icon-caret-bottom"></i>
                             </el-button>
@@ -132,7 +130,6 @@ export default {
         }
         dl a {
             display: block; 
-            // background-image: url("@{imgBaseUrl}logo.png");
             background-size: auto 40%;
             background-repeat: no-repeat;
             background-position: center left;
@@ -164,7 +161,6 @@ export default {
         line-height: 80px;
         a {
             display: block;
-            // background-image: url("@{imgBaseUrl}logo3.png");
             background-size: auto 45%;
             background-position: center left;
             background-repeat: no-repeat;
@@ -209,6 +205,7 @@ export default {
                         height: 40px;
                         width: 40px;
                         margin-right: 8px;
+                        border-radius: 100%;
                     }
                     >span{
                         margin-right: 5px;

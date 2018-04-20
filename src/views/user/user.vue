@@ -39,7 +39,6 @@
                     <el-form-item label="手机号" prop="phone"
                     :rules="[
                         { required: true, message: '请输入手机号', trigger: 'blur' },
-                        { type: 'phone', message: '请输入正确的手机号', trigger: 'blur,change' }
                     ]"
                     >
                         <el-input v-model="userForm.phone"></el-input>
@@ -47,7 +46,8 @@
                     <el-form-item label="头像">
                         <el-upload
                             class="avatar-uploader"
-                            action="https://jsonplaceholder.typicode.com/posts/"
+                            action="http://localhost:8000/avatar"
+                            :headers="getToekn()"
                             :show-file-list="false"
                             :on-success="handleAvatarSuccess"
                             :before-upload="beforeAvatarUpload">
@@ -227,10 +227,10 @@
 </template>
 <script>
 import Pagination from '@/components/pagination';
-import {mapState, mapActions} from 'vuex';
-import {baseUrl} from '@/help/env';
+import { mapState, mapActions } from 'vuex';
+import { baseUrl } from '@/help/env';
 import store from '@/store';
-import { User, Bug } from '@/api';
+import { User, Resident } from '@/api';
 export default {
     name: 'user',
     components: {
@@ -397,13 +397,21 @@ export default {
             imageCheckBox: [],
         };
     },
-    mounted() {
+    async mounted() {
         if (this.$store.getters.residentAuth === 0) {
             this.$router.push({path: "/verify"});
         }
-        this.userForm = this.$store.getters.user;
+        this.userForm = await this.GetInfo();
     },
     methods: {
+        ...mapActions([
+            'GetInfo',
+        ]),
+        getToekn() {
+            return {
+                authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZWxmSWQiOjU5NSwidHlwZSI6MiwiaWF0IjoxNTI0MjM4MTcwLCJleHAiOjE1MjUxMDIxNzB9.MmdrSIRtdXgVL3SzJ-w3U-Jg2UWMtU4OBOQkVlmwQOQ'
+            };
+        },
         async getMenu(index) {
             this.currentIndex = index;
             switch (index) {
@@ -427,9 +435,17 @@ export default {
         onSubmit() {
             this.$refs["user_form"].validate((valid) => {
                 if (valid) {
-                    this.$message.success('修改成功!');
+                    User.changeInfo({
+                        name: this.userForm.name,
+                        age: this.userForm.age,
+                        gender: this.userForm.gender,
+                        email: this.userForm.email,
+                        phone: this.userForm.phone
+                    }).then(data => {
+                        console.log(data);
+                        this.$message.success('修改成功!');
+                    });
                 } else {
-                    console.log('error submit!!');
                     return false;
                 }
             });
@@ -437,7 +453,7 @@ export default {
         postBug() {
             this.$refs["bug_form"].validate(async (valid) => {
                 if (valid) {
-                    await Bug.addBug(this.bugForm);
+                    await Resident.addBug(this.bugForm);
                     this.bugForm = {};
                     this.bugImageUrl = "";
                     this.$message.success('提交成功!');
@@ -448,7 +464,9 @@ export default {
             });
         },
         handleAvatarSuccess(res, file) {
-            this.userForm.avatar = URL.createObjectURL(file.raw);
+            if (res.code === 1) {
+                this.userForm.avatar = URL.createObjectURL(file.raw);
+            } else this.$message.error('上传失败');
         },
         beforeAvatarUpload(file) {
             const isJPG = file.type === 'image/jpeg';
@@ -542,7 +560,7 @@ export default {
                 pageSize: 10,
             };
             if (status) data.status = status;
-            const visitors = await User.getVisitors(data);
+            const visitors = await Resident.getVisitors(data);
             this.visitorData = visitors.datas;
             this.visitorTotal = visitors.total;
             console.log(this.visitorData);

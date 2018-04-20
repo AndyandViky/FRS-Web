@@ -2,6 +2,7 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import { getToken, setToken, removeToken } from '@/help/auth.js';
 import { User } from '../api';
+import { baseUrl } from '@/help/env';
 
 Vue.use(Vuex);
 
@@ -43,9 +44,10 @@ const actions = {
     GetInfo({ commit, state }) {
         return new Promise((resolve, reject) => {
             User.userInfo().then(result => {
-                commit('SET_USER', result);
-                console.log(result);
-                resolve(result);
+                result.user.is_verify = result.isVerify;
+                result.user.avatar = baseUrl + result.user.avatar.substring(6);
+                commit('SET_USER', result.user);
+                resolve(result.user);
             }).catch(error => {
                 reject(error);
             });
