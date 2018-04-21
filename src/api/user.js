@@ -12,6 +12,9 @@ export const login = (data) => request('/login', data, 'post');
 // 注册
 export const register = (data) => request('/register', data, 'post');
 
+// 修改密码
+export const changePwd = (data) => request('/password', data, 'put');
+
 // 获取门禁记录
 export const getCameraRecords = (data) => request('/camera/records', data, 'get');
 

@@ -11,5 +11,14 @@ export const getVisitors = (data) => request(base + '/visitors', data, 'get');
 export const approveVisitor = (data) => request(base + '/visitors', data, 'put');
 
 // 提交故障
-export const addBug = (data) => request('/bug', data, 'post');
+export const addBug = (data) => request(base + '/bug', data, 'post');
+
+// 增加答案
+export const addAnswer = (data) => request(base + '/answer', data, 'post');
+
+// 提问
+export const addQuestion = (data) => request(base + '/question', data, 'post');
+
+// 点赞
+export const addLike = (data) => request(base + '/like', data, 'post');
 

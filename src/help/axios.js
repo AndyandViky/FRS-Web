@@ -28,7 +28,7 @@ axios.interceptors.request.use((config) => {
 // 返回状态判断
 axios.interceptors.response.use((res) => {
     if (res.data.code !== 1) {
-        Message.error('请求失败');
+        Message.error(res.data.msg);
         return Promise.reject(res);
     }
     return res;

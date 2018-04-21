@@ -1,11 +1,15 @@
 <script>
+import { mapState, mapActions } from 'vuex';
 import Pagination from '@/components/pagination';
 export default {
     name: '',
     components: {
         'v-pagination': Pagination
     },
-    directives: {
+    computed: {
+        ...mapState([
+            'user'
+        ]),
     },
     data() {
         return {
@@ -34,8 +38,9 @@ export default {
                 <div class="wrapper_left">
                     <div class="AnswerInput card">
                         <div class="userInfo">
-                            <img src="/static/images/user_avatar.png">
-                            <div>andy</div>
+                            <img v-if="!user.avatar" src="/static/images/user_avatar.png">
+                            <img v-else :src="user.avatar">
+                            <div>{{user.name}}</div>
                             <div class="button">提交</div>
                         </div>
                         <div class="inputArea">
@@ -116,6 +121,7 @@ export default {
                         height: 50px;
                         width: 50px;
                         margin-right: 10px;
+                        border-radius: 100%;
                     }
                     .button{
                         position: absolute;

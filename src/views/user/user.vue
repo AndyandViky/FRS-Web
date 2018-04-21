@@ -1,7 +1,8 @@
 <template>
     <div class="user_box">
         <ul class="left">
-            <li class="menu_item" @click="getMenu(index)" v-for="(item, index) in menuData" :key="index" :class="{item_bg: index===currentIndex}">{{item.title}}</li>
+            <li class="menu_item" v-if="item.rank === 0" @click="getMenu(index)" v-for="(item, index) in menuData" :key="index" :class="{item_bg: index===currentIndex}">{{item.title}}</li>
+            <li class="menu_item" v-if="userForm.types === item.rank" @click="getMenu(index)" v-for="(item, index) in menuData" :key="index" :class="{item_bg: index===currentIndex}">{{item.title}}</li>
         </ul>
         <div class="right menu_desc">
             <div class="user_info" v-if="currentIndex===menuEnum.info.value">
@@ -164,26 +165,26 @@
             </div>
             <div class="change_pwd" v-if="currentIndex===menuEnum.password.value">
                 <el-form class="pwd_form" ref="pwd_form" :model="pwdForm" label-width="120px">
-                    <el-form-item label="旧密码" prop="oldPassword"
+                    <el-form-item label="旧密码" prop="oldPwd"
                     :rules="[
                         { required: true, message: '旧密码不能为空'},
                     ]"
                     >
-                        <el-input required placeholder="请输入旧密码" type="password" v-model="pwdForm.oldPassword"></el-input>
+                        <el-input required placeholder="请输入旧密码" type="password" v-model="pwdForm.oldPwd"></el-input>
                     </el-form-item>
-                    <el-form-item label="新密码" prop="newPassword"
+                    <el-form-item label="新密码" prop="newPwd"
                     :rules="[
                         { required: true, message: '新密码不能为空'},
                     ]"
                     >
-                        <el-input required placeholder="请输入新密码" type="password" v-model="pwdForm.newPassword"></el-input>
+                        <el-input required placeholder="请输入新密码" type="password" v-model="pwdForm.newPwd"></el-input>
                     </el-form-item>
-                    <el-form-item label="再次输入新密码" prop="newPassword1"
+                    <el-form-item label="再次输入新密码" prop="confirmPwd"
                     :rules="[
                         { required: true, message: '新密码不能为空'},
                     ]"
                     >
-                        <el-input required placeholder="请再次输入新密码" type="password" v-model="pwdForm.newPassword1"></el-input>
+                        <el-input required placeholder="请再次输入新密码" type="password" v-model="pwdForm.confirmPwd"></el-input>
                     </el-form-item>
                     <el-form-item>
                         <el-button type="primary" @click="changePwd">修改</el-button>
@@ -280,31 +281,38 @@ export default {
                 {
                     id: 0,
                     title: "用户信息",
+                    rank: 0,
                 },
                 {
                     id: 1,
                     title: "访客管理",
+                    rank: 2,
                 },
                 {
                     id: 2,
                     title: '故障上报',
+                    rank: 2,
                 },
                 {
                     id: 3,
                     title: '图像管理',
+                    rank: 0,
                 },
                 {
                     id: 4,
                     title: '门禁记录',
+                    rank: 0,
                 },
                 {
                     id: 5,
                     title: "密码修改",
+                    rank: 0,
                 },
-                // {
-                //     id: 6,
-                //     title: "访问申请",
-                // }
+                {
+                    id: 6,
+                    title: "访问申请",
+                    rank: 1,
+                }
             ],
             menuEnum: {
                 info: {
@@ -339,9 +347,9 @@ export default {
             userForm: {
             },
             pwdForm: {
-                oldPassword: '',
-                newPassword: '',
-                newPassword1: '',
+                oldPwd: '',
+                newPwd: '',
+                confirmPwd: '',
             },
             bugForm: {
                 title: '',
@@ -397,6 +405,18 @@ export default {
             imageCheckBox: [],
         };
     },
+    watch: {
+        imageCheckBox(old, newValue) {
+            const box = old;
+            let length = box.length;
+            if (length > 1) {
+                const last = length - 1;
+                const lastId = box[last];
+                this.imageCheckBox = [];
+                this.imageCheckBox.push(lastId);
+            }
+        }
+    },
     async mounted() {
         if (this.$store.getters.residentAuth === 0) {
             this.$router.push({path: "/verify"});
@@ -425,6 +445,9 @@ export default {
                 this.faceData = await User.getFaceModel();
                 for (const face of this.faceData) {
                     face.model_image = baseUrl + face.model_image.substring(6);
+                    if (face.is_active === 1) {
+                        this.imageCheckBox.push(face.id);
+                    }
                 }
                 break;
             case 4: // 门禁记录
@@ -516,7 +539,12 @@ export default {
         changePwd() {
             this.$refs["pwd_form"].validate((valid) => {
                 if (valid) {
-                    this.$message.success('修改成功!');
+                    if (this.pwdForm.newPwd !== this.pwdForm.confirmPwd) {
+                        return this.$message.warning('两次密码输入不一致!');
+                    }
+                    User.changePwd(this.pwdForm).then(result => {
+                        this.$message.success('修改成功!');
+                    });
                 } else {
                     console.log('error submit!!');
                     return false;
@@ -617,6 +645,23 @@ export default {
                 this.showImageMark = true;
                 this.editImageText = "完成";
             } else {
+                // 提交
+                if (this.imageCheckBox.length === 0) {
+                    this.$alert('当前暂未选中激活模型?', '是否确认', {
+                        confirmButtonText: '确认',
+                        callback: action => {
+                            if (action === 'confirm') {
+                                User.activeFace({ modelId: 0 }).then(result => {
+                                    this.$message.success("编辑成功");
+                                });
+                            }
+                        }
+                    });
+                } else {
+                    User.activeFace({ modelId: this.imageCheckBox[0] }).then(result => {
+                        this.$message.success("编辑成功");
+                    });
+                }
                 this.showImageMark = false;
                 this.editImageText = "编辑";
             }
