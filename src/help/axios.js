@@ -15,10 +15,9 @@ axios.defaults.baseURL = baseUrl;
 // POST传参序列化
 axios.interceptors.request.use((config) => {
     config.headers['Content-Type'] = 'application/json';
-    // if (store.getters.token) {
-    //     config.headers['authorization'] = 'Bearer ' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZWxmSWQiOjIsImlhdCI6MTUyMzMzOTQwNywiZXhwIjoxNTI0MjAzNDA3fQ.tWUoC3fCuDXOExtmdnInYd44kR-Qvjvwe9Zu8LuzkPo'; // 让每个请求携带token--['X-Token']为自定义key 请根据实际情况自行修改
-    // }
-    config.headers['authorization'] = 'Bearer ' + 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZWxmSWQiOjU5NSwiaWF0IjoxNTI0MjM1OTA0LCJleHAiOjE1MjUwOTk5MDR9.9eL_3L4pD_mGaLt1OTsJESDhnB3iQF-gI-GZGiKBXjI'; // 让每个请求携带token--['X-Token']为自定义key 请根据实际情况自行修改
+    if (store.getters.token) {
+        config.headers['authorization'] = 'Bearer ' + getToken();
+    }
     return config;
 }, (error) => {
     Message.error('网络异常');

@@ -36,8 +36,13 @@ const actions = {
             setToken(token);
             commit('SET_TOKEN', token);
             resolve();
-        }).catch(error => {
-            reject(error);
+        });
+    },
+    SetUser({ commit }, user) {
+        return new Promise((resolve, reject) => {
+            user.avatar = baseUrl + user.avatar.substring(6);
+            commit('SET_USER', user);
+            resolve();
         });
     },
     // 获取用户信息
@@ -48,8 +53,6 @@ const actions = {
                 result.user.avatar = baseUrl + result.user.avatar.substring(6);
                 commit('SET_USER', result.user);
                 resolve(result.user);
-            }).catch(error => {
-                reject(error);
             });
         });
     },

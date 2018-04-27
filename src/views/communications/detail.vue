@@ -1,6 +1,8 @@
 <script>
 import { mapState, mapActions } from 'vuex';
 import Pagination from '@/components/pagination';
+import { Question, Resident } from '@/api';
+import { baseUrl } from '@/help/env';
 export default {
     name: '',
     components: {
@@ -13,23 +15,53 @@ export default {
     },
     data() {
         return {
+            question: {},
+            answerContent: '',
         };
     },
-    created() {},
+    async created() {
+        const id = this.$route.params.id;
+        this.question = await Question.getQuestion({questionId: id});
+        if (this.question.question.people.avatar) {
+            this.question.question.people.avatar = baseUrl + this.question.question.people.avatar.substring(6);
+        }
+        for (const item of this.question.answers) {
+            if (item.people.avatar) {
+                item.people.avatar = baseUrl + item.people.avatar.substring(6);
+            }
+        }
+    },
     mounted() {},
-    methods: {}
+    methods: {
+        addAnswer() {
+            if (this.$store.getters.user.types < 2) {
+                return this.$message.warning('您不是业主. 暂无法提交答案');
+            }
+            if (this.answerContent === '') {
+                return this.$message.warning('请输入回答内容');
+            }
+            Resident.addAnswer({
+                content: this.answerContent,
+                question_id: this.$route.params.id,
+            }).then(result => {
+                this.answerContent = '';
+                return this.$message.success('提交成功');
+            });
+        }
+    }
 };
 </script>
 <template>
     <div class="communications_detail_container">
         <div class="top">
-            <div class="container">
+            <div class="container" v-if="question.question">
                 <div class="authorInfo">
-                    <img src="/static/images/user_avatar.png">
-                    <div>爱吃菜的小女孩</div>
+                    <img v-if="!question.question.people.avatar" src="/static/images/user_avatar.png">
+                    <img v-else :src="question.question.people.avatar">
+                    <div>{{question.question.people.name}}</div>
                 </div>
                 <div class="questionTitle">
-                    光线变化对识别效果影响大吗？
+                    {{question.question.title}}
                 </div>
             </div>
         </div>
@@ -41,29 +73,30 @@ export default {
                             <img v-if="!user.avatar" src="/static/images/user_avatar.png">
                             <img v-else :src="user.avatar">
                             <div>{{user.name}}</div>
-                            <div class="button">提交</div>
+                            <div class="button" @click="addAnswer">提交</div>
                         </div>
                         <div class="inputArea">
-                            <textarea placeholder="输入回答..."></textarea>
+                            <textarea placeholder="输入回答..." v-model="answerContent"></textarea>
                         </div>
                     </div>
-                    <div class="AnswerList card">
+                    <div class="AnswerList card" v-if="question.answers">
                         <div class="listTop">
-                            <div>1 个回答</div>
+                            <div>{{question.answers.length}} 个回答</div>
                         </div>
-                        <div class="listItem" v-for="i in 1">
+                        <div class="listItem" v-for="item in question.answers">
                             <div class="authorInfo">
-                                <img src="/static/images/a.jpg">
-                                <div>小杨</div>
+                                <img v-if="!item.people.avatar" src="/static/images/user_avatar.png">
+                                <img v-else :src="item.people.avatar">
+                                <div>{{item.people.name}}</div>
                                 <div class="time">
-                                    2018-4-10
+                                    {{item.created_at.substring(0, 10)}}
                                 </div>
                             </div>
                             <div class="questionTitle">
-                                我觉得影响是肯定有的, 具体影响多少应该看光的强度, 毕竟人脸识别不是百分百准确, 不过正常的通行肯定能保证.
+                                {{item.content}}
                             </div>
                         </div>
-                        <v-pagination :total="1"></v-pagination>
+                        <v-pagination v-if="question" :total="question.total"></v-pagination>
                     </div>
                 </div>
                 <div class="wrapper_right">
@@ -74,6 +107,9 @@ export default {
     </div>
 </template>
 <style lang="less" scoped>
+.communications_detail_container{
+    min-height: 800px;
+}
 .top{
     width: 100%;
     background-color: #fff;

@@ -312,6 +312,11 @@ export default {
                     id: 6,
                     title: "访问申请",
                     rank: 1,
+                },
+                {
+                    id: 7,
+                    title: "提问中心",
+                    rank: 2,
                 }
             ],
             menuEnum: {

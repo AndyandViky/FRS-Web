@@ -13,7 +13,7 @@ export default {
         return {
             show: false,
             loginForm: {
-                usercode: '',
+                username: '',
                 password: ''
             },
             registerForm: {
@@ -43,7 +43,7 @@ export default {
             'user'
         ]),
         CodeBtnDisabled() {
-            return !(((typeof this.registerForm.phone !== 'undefined') && this.registerForm.phone.length !== 0) && (this.codeBtnShow));
+            return !(((typeof this.registerForm.email !== 'undefined') && this.registerForm.email.length !== 0) && (this.codeBtnShow));
         }
     },
     methods: {
@@ -60,8 +60,16 @@ export default {
                 return true;
             }
         },
+        sendVCode() {
+            const email = this.registerForm.email;
+            User.sendRegisterEmail({
+                email
+            }).then(result => {
+                this.$message.info('发送成功');
+            });
+        },
         async Login_click() {
-            if (typeof this.loginForm.usercode === 'undefined' || this.loginForm.usercode.length === 0) {
+            if (typeof this.loginForm.username === 'undefined' || this.loginForm.username.length === 0) {
                 return this.$message({
                     type: 'warning',
                     message: '用户名不能为空!'
@@ -73,20 +81,19 @@ export default {
                     message: '密码不能为空!'
                 });
             }
-            const password = userHelp.encryptionPassword(this.loginForm.password);
-            try {
-                let res = await User.login({usercode: this.loginForm.usercode, password: password});
-                await this.$store.dispatch('SetToken', res);
-                this.GetInfo();
+            User.login({
+                username: this.loginForm.username,
+                password: this.loginForm.password
+            }).then(async result => {
+                await this.$store.dispatch('SetToken', result.token);
+                result.user.is_verify = result.isVerify;
+                await this.$store.dispatch('SetUser', result.user);
                 this.show = false;
                 this.$message({
                     type: 'success',
                     message: '登录成功!'
                 });
-            } catch (err) {
-                // console.log(err);
-                this.l_message = err.data.error;
-            }
+            });
         },
         async Register_click() {
             if (typeof this.registerForm.email === 'undefined' || this.registerForm.email.length === 0) {
@@ -146,7 +153,7 @@ export default {
             this.operation = 0;
         },
         clear() {
-            this.loginForm.usercode = undefined;
+            this.loginForm.username = undefined;
             this.loginForm.password = undefined;
             this.registerForm.email = undefined;
             this.registerForm.name = undefined;
@@ -186,7 +193,7 @@ export default {
                 <div class="login_body" v-if="!operation">
                     <div class="input_box">
                         <img src="/static/images/user_icon.png">
-                        <input type="" name="user" placeholder="输入用户名 / 手机号" v-model="loginForm.usercode">
+                        <input type="" name="user" placeholder="输入邮箱 / 手机号" v-model="loginForm.username">
                     </div>
                     <div class="input_box">
                         <img src="/static/images/password_icon.png">
@@ -209,11 +216,11 @@ export default {
                     </div>
                     <div class="input_box" :class="[registerForm.type?'hide':'']">
                         <img src="/static/images/company_icon.png">
-                        <input type="" name="company" placeholder="请输入业主地址" v-model="registerForm.user_adress">
+                        <input type="text" name="company" placeholder="请输入业主地址" v-model="registerForm.user_adress">
                     </div>
                     <div class="input_box">
                         <img src="/static/images/login_phone.png">
-                        <input type="" name="name" placeholder="请输入姓名" v-model="registerForm.name">
+                        <input type="text" name="name" placeholder="请输入姓名" v-model="registerForm.name">
                     </div>
                     <div class="input_box">
                         <img src="/static/images/login_phone.png">
@@ -221,7 +228,7 @@ export default {
                     </div>
                     <div class="input_box">
                         <img src="/static/images/vcode.png">
-                        <input type="" name="vcode" placeholder="请输入验证码" v-model="registerForm.vCode">
+                        <input type="text" name="vcode" placeholder="请输入验证码" v-model="registerForm.vCode">
                         <button @click="sendVCode" :disabled="CodeBtnDisabled">
                             <span title="输入邮箱获取验证码" v-show="codeBtnShow">获取验证码</span>
                             <span v-show="!codeBtnShow">{{count}} s</span>

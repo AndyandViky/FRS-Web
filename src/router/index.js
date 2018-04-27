@@ -20,7 +20,7 @@ const vueRouter = new Router({
             {path: '/index', component: Index, meta: {keepAlive: true, title: '人脸门禁联盟'}},
             {path: '/about', component: About, meta: {keepAlive: true, title: '人脸门禁联盟-关于我们'}},
             {path: '/communications', component: Communications, meta: {keepAlive: true, title: '人脸门禁联盟-互动交流'}},
-            {path: '/communications/detail', component: CommunicationDetail, meta: {keepAlive: true, title: '人脸门禁联盟-互动交流-详情'}},
+            {path: '/communications/detail/:id', component: CommunicationDetail, meta: {keepAlive: true, title: '人脸门禁联盟-互动交流-详情'}},
             {path: '/user', component: User, meta: {keepAlive: true, title: '人脸门禁联盟-用户信息'}},
             {path: '/verify', component: Verify, meta: {keepAlive: true, title: '人脸门禁联盟-业主校验'}},
             {path: '/age/test', component: AgeTest, meta: {keepAlive: true, title: '人脸门禁联盟-跨年领测试'}},
