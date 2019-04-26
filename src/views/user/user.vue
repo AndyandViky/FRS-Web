@@ -1,6 +1,6 @@
 <template>
     <div class="user_box">
-        <ul class="left">
+        <ul class="left left_menu">
             <li class="menu_item" v-if="item.rank === 0" @click="getMenu(index)" v-for="(item, index) in menuData" :key="index" :class="{item_bg: index===currentIndex}">{{item.title}}</li>
             <li class="menu_item" v-if="userForm.types === item.rank" @click="getMenu(index)" v-for="(item, index) in menuData" :key="index" :class="{item_bg: index===currentIndex}">{{item.title}}</li>
         </ul>
@@ -732,6 +732,15 @@ export default {
 .user_box{
     width: 980px;
     margin: 50px auto;
+    .left_menu, .menu_desc{
+      min-height: 400px;
+      border-radius: 5px;
+      box-shadow: -1px -1px 1px #ccc;
+      background-color: rgba(236, 236, 236, 0.699);
+      >div {
+        margin: 30px;
+      }
+    }
     .menu_item{
         width: 200px;
         text-align: center;
@@ -752,7 +761,7 @@ export default {
     }
     .menu_desc{
         width: 760px;
-        min-height: 600px;
+        min-height: 400px;
         .el-input__inner{
             width: 200px;
         }

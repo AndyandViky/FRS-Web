@@ -34,7 +34,8 @@ export default {
     mounted() {},
     methods: {
         addAnswer() {
-            if (this.$store.getters.user.types < 2) {
+            const user = this.$store.getters.user;
+            if (user.types < 2) {
                 return this.$message.warning('您不是业主. 暂无法提交答案');
             }
             if (this.answerContent === '') {
@@ -44,6 +45,17 @@ export default {
                 content: this.answerContent,
                 question_id: this.$route.params.id,
             }).then(result => {
+                let answer = {
+                    content: this.answerContent,
+                    created_at: '2019-04-25T19:10:49.000Z',
+                    id: 4,
+                    people: {
+                        name: user.name,
+                        avatar: user.avatar,
+                    },
+                    people_id: user.id
+                };
+                this.question.answers.push(answer);
                 this.answerContent = '';
                 return this.$message.success('提交成功');
             });

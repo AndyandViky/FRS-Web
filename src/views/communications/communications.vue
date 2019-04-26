@@ -43,6 +43,7 @@ export default {
             }
             this.questions.sort(this.compare('like'));
             const length = this.questions.length < 5 ? this.questions.length : 5;
+            this.hotQuestion = [];
             for (let i = 0; i < length; i++) {
                 const data = this.questions[i].adress.split('-');
                 this.hotQuestion.push({
