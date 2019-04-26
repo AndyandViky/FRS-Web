@@ -45,6 +45,7 @@ export default {
                     type: 'success',
                     message: '登出!'
                 });
+                this.$router.push({ path: '/' });
             }).catch(() => {
                 this.$message({
                     type: 'info',

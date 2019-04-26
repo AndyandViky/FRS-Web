@@ -1,8 +1,12 @@
 <template>
     <div class="user_box">
         <ul class="left left_menu">
-            <li class="menu_item" v-if="item.rank === 0" @click="getMenu(index)" v-for="(item, index) in menuData" :key="index" :class="{item_bg: index===currentIndex}">{{item.title}}</li>
-            <li class="menu_item" v-if="userForm.types === item.rank" @click="getMenu(index)" v-for="(item, index) in menuData" :key="index" :class="{item_bg: index===currentIndex}">{{item.title}}</li>
+            <li class="menu_item" v-if="item.rank === 0" 
+            @click="getMenu(index)" v-for="(item, index) in menuData" :key="index" 
+            :class="{item_bg: index===currentIndex}">{{item.title}}</li>
+            <li class="menu_item" v-if="(userForm.types === item.rank || userForm.types >= 3) && item.rank !== 0" 
+            @click="getMenu(index)" v-for="(item, index) in menuData" :key="index" 
+            :class="{item_bg: index===currentIndex}">{{item.title}}</li>
         </ul>
         <div class="right menu_desc">
             <div class="user_info" v-if="currentIndex===menuEnum.info.value">
@@ -78,7 +82,7 @@
                         <span v-if="item.gender === 0">男</span>
                         <span>年龄: 20</span>
                         <span>天数: <span style="font-size: 15px; color: #999;margin-left:10px;">{{item.deadline}}</span></span>
-                        <span>申请时间: <span style="font-size: 15px; color: #999;margin-left:10px;">{{item.created_at}}</span></span>
+                        <span>申请时间: <span style="font-size: 15px; color: #999;margin-left:10px;">{{item.created_at.substring(0,10)}}</span></span>
                         <el-button class="list_button" type="primary" size="small" v-if="item.status === 0" @click="passApply(index)">通过</el-button>
                         <el-button class="list_button" type="danger" size="small" v-if="item.status > 0" @click="deleteApply(index)">删除</el-button>
                     </li>
@@ -231,7 +235,7 @@ import Pagination from '@/components/pagination';
 import { mapState, mapActions } from 'vuex';
 import { baseUrl } from '@/help/env';
 import store from '@/store';
-import { User, Resident } from '@/api';
+import { User, Resident, Visitor } from '@/api';
 export default {
     name: 'user',
     components: {
@@ -308,16 +312,16 @@ export default {
                     title: "密码修改",
                     rank: 0,
                 },
-                {
-                    id: 6,
-                    title: "访问申请",
-                    rank: 1,
-                },
-                {
-                    id: 7,
-                    title: "提问中心",
-                    rank: 2,
-                }
+                // {
+                //     id: 6,
+                //     title: "访问申请",
+                //     rank: 1,
+                // },
+                // {
+                //     id: 7,
+                //     title: "提问中心",
+                //     rank: 2,
+                // }
             ],
             menuEnum: {
                 info: {
@@ -362,7 +366,7 @@ export default {
                 paths: '',
             },
             applyForm: {
-                adress: [],
+                belong: -2,
                 reason: '',
                 deadline: 1,
             },
@@ -610,7 +614,7 @@ export default {
             console.log(result);
         },
         deleteRecord(index) {
-            this.$alert('是否删除访客记录?', '删除数据', {
+            this.$alert('是否删除门禁记录?', '删除数据', {
                 confirmButtonText: '确定',
                 callback: action => {
                     if (action === 'confirm') {
@@ -686,7 +690,7 @@ export default {
             // 提交申请信息
             this.$refs["apply_form"].validate(async (valid) => {
                 if (valid) {
-                    await User.applyVisite(this.applyForm);
+                    await Visitor.applyVisite(this.applyForm);
                     this.$message.success('提交成功!');
                 } else {
                     console.log('error submit!!');
@@ -733,10 +737,10 @@ export default {
     width: 980px;
     margin: 50px auto;
     .left_menu, .menu_desc{
-      min-height: 400px;
+      min-height: 500px;
       border-radius: 5px;
       box-shadow: -1px -1px 1px #ccc;
-      background-color: rgba(236, 236, 236, 0.699);
+      background-color: rgba(247, 243, 243, 0.699);
       >div {
         margin: 30px;
       }
@@ -761,7 +765,6 @@ export default {
     }
     .menu_desc{
         width: 760px;
-        min-height: 400px;
         .el-input__inner{
             width: 200px;
         }
