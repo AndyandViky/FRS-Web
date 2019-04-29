@@ -252,7 +252,7 @@ export default {
                 type: 'bug'
             },
             auth: {
-                authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZWxmSWQiOjU5NSwiaWF0IjoxNTIzNTUzNDEzLCJleHAiOjE1MjQ0MTc0MTN9.DU1W-hagVJg7ts1GUNPSQREZiLFYZyq8ryLyNY9n0kA'
+                authorization: 'Bearer ' + store.getters.token
             },
             // 所有的地址
             adress: [
@@ -474,7 +474,6 @@ export default {
                         email: this.userForm.email,
                         phone: this.userForm.phone
                     }).then(data => {
-                        console.log(data);
                         this.$message.success('修改成功!');
                     });
                 } else {
@@ -596,11 +595,11 @@ export default {
                 pageNo: 1,
                 pageSize: 10,
             };
-            if (status) data.status = status;
+            if (status !== undefined) data.status = status;
             const visitors = await Resident.getVisitors(data);
+            this.visitorData = [];
             this.visitorData = visitors.datas;
             this.visitorTotal = visitors.total;
-            console.log(this.visitorData);
         },
         async getRecordByStatus(status) {
             const data = {
@@ -611,7 +610,6 @@ export default {
             const result = await User.getCameraRecords(data);
             this.recordData = result.datas;
             this.recordTotal = result.total;
-            console.log(result);
         },
         deleteRecord(index) {
             this.$alert('是否删除门禁记录?', '删除数据', {
@@ -628,9 +626,10 @@ export default {
             this.$alert('是否通过此次申请?', '取消', {
                 confirmButtonText: '确定',
                 callback: async action => {
+                    console.log(action);
                     if (action === 'confirm') {
-                        await User.approveVisitor({
-                            visitorId: this.visitorData[index].id
+                        await Resident.approveVisitor({
+                            visitorId: this.visitorData[index].visitor_id
                         });
                         this.visitorData[index].status = 1;
                         this.$message.success('审核成功!');

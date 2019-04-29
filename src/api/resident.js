@@ -8,7 +8,7 @@ export const verify = (data) => request(base + '/verify', data, 'put');
 export const getVisitors = (data) => request(base + '/visitors', data, 'get');
 
 // 业主通过访问
-export const approveVisitor = (data) => request(base + '/visitors', data, 'put');
+export const approveVisitor = (data) => request(base + '/visite', data, 'put');
 
 // 提交故障
 export const addBug = (data) => request(base + '/bug', data, 'post');
