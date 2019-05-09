@@ -52,7 +52,7 @@
                         <el-upload
                             class="avatar-uploader"
                             action="http://localhost:8000/avatar"
-                            :headers="getToekn()"
+                            :headers="auth"
                             :show-file-list="false"
                             :on-success="handleAvatarSuccess"
                             :before-upload="beforeAvatarUpload">
@@ -88,7 +88,7 @@
                     </li>
                 </ul>
                 <span v-if="visitorData.length === 0" class="no_data">暂无数据</span>
-                <v-pagination :total="visitorTotal" v-if="visitorData.length>0"></v-pagination>
+                <v-pagination :currentPage="pageNo" :display="pageSize" @goto="changeVisitorPage" :total="visitorTotal" v-if="visitorData.length>0"></v-pagination>
             </div>
             <div class="bug_apply" v-if="currentIndex===menuEnum.bug.value">
                 <el-form class="bug_form" ref="bug_form" :model="bugForm" label-width="80px">
@@ -146,7 +146,7 @@
                     </el-upload>
                 </ul>
                 <div class="clear"></div>
-                <v-pagination :total="10" v-if="faceData.length>0"></v-pagination>
+                <v-pagination :display="pageSize" @goto="changeFacePage" :total="10" v-if="faceData.length>0"></v-pagination>
             </div>
             <div class="face_record" v-if="currentIndex===menuEnum.faceRecord.value">
                 <ul>
@@ -165,7 +165,7 @@
                     </li>
                 </ul>
                 <span v-if="recordData.length === 0" class="no_data">暂无数据</span>
-                <v-pagination :total="10" v-if="recordData.length>0"></v-pagination>
+                <v-pagination :display="pageSize" @goto="changeRecordPage" :currentPage="pageNo" :total="recordTotal" v-if="recordData.length>0"></v-pagination>
             </div>
             <div class="change_pwd" v-if="currentIndex===menuEnum.password.value">
                 <el-form class="pwd_form" ref="pwd_form" :model="pwdForm" label-width="120px">
@@ -248,6 +248,11 @@ export default {
             recordCurrentIndex: 0,
             visitorTotal: 0,
             recordTotal: 0,
+            currentRecordStatus: -1,
+            currentVisitorStatus: -1,
+            currentFaceStatus: -1,
+            pageNo: 1,
+            pageSize: 10,
             bugType: {
                 type: 'bug'
             },
@@ -436,13 +441,14 @@ export default {
         ...mapActions([
             'GetInfo',
         ]),
-        getToekn() {
-            return {
-                authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZWxmSWQiOjU5NSwidHlwZSI6MiwiaWF0IjoxNTI0MjM4MTcwLCJleHAiOjE1MjUxMDIxNzB9.MmdrSIRtdXgVL3SzJ-w3U-Jg2UWMtU4OBOQkVlmwQOQ'
-            };
-        },
         async getMenu(index) {
             this.currentIndex = index;
+            this.visitorCurrentIndex = 0;
+            this.recordCurrentIndex = 0;
+            this.currentRecordStatus = -1;
+            this.currentFaceStatus = -1;
+            this.currentVisitorStatus = -1;
+            this.pageNo = 1;
             switch (index) {
             case 0:
                 this.userForm = this.$store.getters.user;
@@ -561,41 +567,45 @@ export default {
         },
         async filterVisitorData(index) {
             this.visitorCurrentIndex = index;
+            this.pageNo = 1;
             switch (index) {
             case 0:
-                this.getVisitorByStatus();
+                this.currentVisitorStatus = -1;
                 break;
             case 1:
-                this.getVisitorByStatus(1);
+                this.currentVisitorStatus = 1;
                 break;
             case 2:
-                this.getVisitorByStatus(0);
+                this.currentVisitorStatus = 0;
                 break;
             case 3:
-                this.getVisitorByStatus(2);
+                this.currentVisitorStatus = 2;
                 break;
             }
+            this.getVisitorByStatus(this.currentVisitorStatus);
         },
         filterRecordData(index) {
             this.recordCurrentIndex = index;
+            this.pageNo = 1;
             switch (index) {
             case 0:
-                this.getRecordByStatus();
+                this.currentRecordStatus = -1;
                 break;
             case 1:
-                this.getRecordByStatus(0);
+                this.currentRecordStatus = 0;
                 break;
             case 2:
-                this.getRecordByStatus(1);
+                this.currentRecordStatus = 1;
                 break;
             }
+            this.getRecordByStatus(this.currentRecordStatus);
         },
         async getVisitorByStatus(status) {
             const data = {
-                pageNo: 1,
-                pageSize: 10,
+                pageNo: this.pageNo,
+                pageSize: this.pageSize,
             };
-            if (status !== undefined) data.status = status;
+            if (status !== -1) data.status = status;
             const visitors = await Resident.getVisitors(data);
             this.visitorData = [];
             this.visitorData = visitors.datas;
@@ -603,10 +613,10 @@ export default {
         },
         async getRecordByStatus(status) {
             const data = {
-                pageNo: 1,
-                pageSize: 10,
+                pageNo: this.pageNo,
+                pageSize: this.pageSize,
             };
-            if (status >= 0) data.type = status;
+            if (status !== -1) data.type = status;
             const result = await User.getCameraRecords(data);
             this.recordData = result.datas;
             this.recordTotal = result.total;
@@ -679,8 +689,10 @@ export default {
                 confirmButtonText: '确定',
                 callback: action => {
                     if (action === 'confirm') {
+                        User.deleteFaceModel({ modelId: this.faceData[index].id }).then(result => {
+                            this.$message.success("删除成功");
+                        });
                         this.faceData.splice(index, 1);
-                        this.$message.success("删除成功");
                     }
                 }
             });
@@ -696,7 +708,18 @@ export default {
                     return false;
                 }
             });
-        }
+        },
+        changeRecordPage(page) {
+            this.pageNo = page;
+            this.getRecordByStatus(this.currentRecordStatus);
+        },
+        changeVisitorPage(page) {
+            this.pageNo = page;
+            this.getVisitorByStatus(this.currentVisitorStatus);
+        },
+        changeFacePage(page) {
+            this.pageNo = page;
+        },
     }
 };
 

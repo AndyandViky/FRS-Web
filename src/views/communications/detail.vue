@@ -17,6 +17,8 @@ export default {
         return {
             question: {},
             answerContent: '',
+            pageNo: 1,
+            pageSize: 10,
         };
     },
     async created() {

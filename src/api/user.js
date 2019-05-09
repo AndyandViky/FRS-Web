@@ -24,6 +24,9 @@ export const getCameraRecords = (data) => request('/camera/records', data, 'get'
 // 获取用户人脸模型
 export const getFaceModel = (data) => request('/face', data, 'get');
 
+// 删除用户人脸模型
+export const deleteFaceModel = (data) => request('/face', data, 'delete');
+
 // 用户激活人脸模型
 export const activeFace = (data) => request('/face/active', data, 'put');
 

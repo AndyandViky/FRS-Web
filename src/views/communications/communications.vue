@@ -16,6 +16,8 @@ export default {
         return {
             total: 10,
             comunicateData: null,
+            pageNo: 1,
+            pageSize: 10,
             questions: [],
             hotQuestion: [],
         };
@@ -26,9 +28,8 @@ export default {
     mounted() {},
     methods: {
         async getData() {
-            const data = await Question.getQuestions({pageNo: 1, pageSize: 10});
+            const data = await Question.getQuestions({pageNo: this.pageNo, pageSize: this.pageSize});
             this.questions = data.datas;
-            console.log(this.questions);
             for (const item of this.questions) {
                 if (item.people.avatar) {
                     item.people.avatar = baseUrl + item.people.avatar.substring(6);
@@ -86,6 +87,10 @@ export default {
                     this.getData();
                 });
             });
+        },
+        changeQuestionPage(page) {
+            this.pageNo = page;
+            this.getData();
         }
     }
 };
@@ -143,7 +148,7 @@ export default {
                         </ul>
                     </div>
                 </div>
-                <v-pagination :total="total"></v-pagination>
+                <v-pagination :currentPage="pageNo" :total="total" @goto="changeQuestionPage" :display="pageSize"></v-pagination>
             </div>
             <div class="SideBar">
                 <div class="card memberNews">

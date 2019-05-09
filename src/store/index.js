@@ -40,7 +40,7 @@ const actions = {
     },
     SetUser({ commit }, user) {
         return new Promise((resolve, reject) => {
-            user.avatar = baseUrl + user.avatar.substring(6);
+            user.avatar = user.avatar ? baseUrl + user.avatar.substring(6) : "";
             commit('SET_USER', user);
             resolve();
         });
@@ -50,7 +50,7 @@ const actions = {
         return new Promise((resolve, reject) => {
             User.userInfo().then(result => {
                 result.user.is_verify = result.isVerify;
-                result.user.avatar = baseUrl + result.user.avatar.substring(6);
+                result.user.avatar = result.user.avatar ? baseUrl + result.user.avatar.substring(6) : "";
                 commit('SET_USER', result.user);
                 resolve(result.user);
             });
