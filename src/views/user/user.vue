@@ -82,7 +82,7 @@
                         <span v-if="item.gender === 0">男</span>
                         <span>年龄: 20</span>
                         <span>天数: <span style="font-size: 15px; color: #999;margin-left:10px;">{{item.deadline}}</span></span>
-                        <span>申请时间: <span style="font-size: 15px; color: #999;margin-left:10px;">{{item.created_at.substring(0,10)}}</span></span>
+                        <span>申请时间: <span style="font-size: 15px; color: #999;margin-left:10px;">{{item.created_at.substring(0,10)}} {{item.created_at.substring(11, 16)}}</span></span>
                         <el-button class="list_button" type="primary" size="small" v-if="item.status === 0" @click="passApply(index)">通过</el-button>
                         <el-button class="list_button" type="danger" size="small" v-if="item.status > 0" @click="deleteApply(index)">删除</el-button>
                     </li>
@@ -160,7 +160,7 @@
                         <span v-if="item.type === 0">进入方式: camera</span>
                         <span v-if="item.type === 1">进入方式: app</span>
                         <span>人数: {{item.count}}</span>
-                        <span>进入时间: <span style="font-size: 15px; color: #999;margin-left:10px;">{{item.created_at}}</span></span>
+                        <span>进入时间: <span style="font-size: 15px; color: #999;margin-left:10px;">{{item.created_at.substring(0, 10)}} {{item.created_at.substring(11, 16)}}</span></span>
                         <el-button class="list_button" type="danger" size="small" @click="deleteRecord(index)">删除</el-button>
                     </li>
                 </ul>

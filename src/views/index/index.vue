@@ -17,14 +17,14 @@
             <div class="desc_image"></div>
             <div class="clear"></div>
         </div>
-        <div class="open_type">
+        <!-- <div class="open_type">
             <ul>
                 <li class="type_item" v-for="item in 5" :key="item">
                     <img :src="'http://kaimen.geeku.top/images/index2/three0'+(item)+'.png'" alt="" />
                 </li>
             </ul>
             <div class="clear"></div>
-        </div>
+        </div> -->
         <div class="visitor_box">
             <img src="/static/images/eight_banner2.png" alt="">
         </div>
@@ -52,7 +52,7 @@ export default {
             bannerData: [
                 "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1522477500893&di=6706f5b34ff751a2d4b8cece85a937f9&imgtype=0&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F01164155448e950000019ae95d8b93.jpg",
                 "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1522477444879&di=750ab4978181a8352eb2747ef3a2989c&imgtype=0&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F011c93588449f8a801219c775166e2.jpg",
-                "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1523072239&di=15cb698204107f9b696e13ce55b6ce8a&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F01f06d589be1b0a8012060c8beb430.jpg%402o.jpg",
+                // "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1523072239&di=15cb698204107f9b696e13ce55b6ce8a&imgtype=jpg&er=1&src=http%3A%2F%2Fimg.zcool.cn%2Fcommunity%2F01f06d589be1b0a8012060c8beb430.jpg%402o.jpg",
                 "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1522477520229&di=5b6236a4996d285b539310758d25627f&imgtype=0&src=http%3A%2F%2Fpic.90sjimg.com%2Fback_pic%2F00%2F00%2F69%2F40%2Fad1ec9813fa678f4ade69ab4fbaccbce.jpg"
             ],
             effectData: [
