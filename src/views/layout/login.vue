@@ -21,7 +21,7 @@ export default {
                 vCode: undefined,
                 password: undefined,
                 user_adress: undefined,
-                type: 0,
+                types: 2,
                 confirmPassword: undefined,
                 name: undefined,
             },
@@ -102,6 +102,12 @@ export default {
                     message: '邮箱不能为空!'
                 });
             }
+            if (typeof this.registerForm.email === 'undefined' || this.registerForm.email.length === 0) {
+                return this.$message({
+                    type: 'warning',
+                    message: '邮箱不能为空!'
+                });
+            }
             if (typeof this.registerForm.password === 'undefined' || this.registerForm.password.length === 0) {
                 return this.$message({
                     type: 'warning',
@@ -126,17 +132,8 @@ export default {
                     message: '验证码不能为空!'
                 });
             }
-            const password = userHelp.encryptionPassword(this.registerForm.password);
-            if (this.registerForm.type === 0) {
-                if (typeof this.registerForm.company_name === 'undefined' || this.registerForm.company_name.length === 0) {
-                    return this.$message({
-                        type: 'warning',
-                        message: '公司名不能为空!'
-                    });
-                }
-            }
             try {
-                let result = await User.register({phone: this.registerForm.phone, password: password, user_adress: this.registerForm.user_adress, vCode: this.registerForm.vCode});
+                await User.register(this.registerForm);
                 this.operation = 0;
                 this.$message({
                     type: 'success',
@@ -161,7 +158,7 @@ export default {
             this.registerForm.vCode = undefined;
             this.registerForm.password = undefined;
             this.registerForm.user_adress = undefined;
-            this.registerForm.type = 0;
+            this.registerForm.types = 2;
             this.l_message = '';
             this.r_message = '';
         }
@@ -205,16 +202,16 @@ export default {
 
                 <div class="register_body" v-if="operation">
                     <div class="typeswitch">
-                        <label class="m-radiobox" @click="registerForm.type = 0">
+                        <label class="m-radiobox" @click="registerForm.types = 2">
                             <input type="radio" name="customer_registration_type" required="required" class="radio" value="2" checked="">
                             <span class="ico"></span> <em>业主</em> 
                         </label>
-                        <label class="m-radiobox" @click="registerForm.type = 1">
+                        <label class="m-radiobox" @click="registerForm.types = 1">
                             <input type="radio" name="customer_registration_type" required="required" class="radio" value="3">
                             <span class="ico"></span> <em>访客</em> 
                         </label>
                     </div>
-                    <div class="input_box" :class="[registerForm.type?'hide':'']">
+                    <div class="input_box" :class="[registerForm.types == 1?'hide':'']">
                         <img src="/static/images/company_icon.png">
                         <input type="text" name="company" placeholder="请输入业主地址" v-model="registerForm.user_adress">
                     </div>

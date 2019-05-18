@@ -6,6 +6,9 @@ export const userInfo = (data) => request('/user', data, 'get');
 // 修改用户信息
 export const changeInfo = (data) => request('/user', data, 'put');
 
+// 验证用户信息
+export const verify = (data) => request('/resident/verify', data, 'put');
+
 // 登录
 export const login = (data) => request('/login', data, 'post');
 

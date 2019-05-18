@@ -74,13 +74,11 @@
                 <div class="clear"></div>
                 <ul v-if="visitorData.length > 0">
                     <li class="visitor_list" v-for="(item, index) in visitorData" :key="index">
-                        <img src="/static/images/user_avatar.png" alt="" class="left" width="60px" height="60px">
-                        <!-- <span class="visitor_name">{{item.name}}</span>
-                        <span v-if="item.gender === 0">男</span>
-                        <span v-if="item.gender === 1">女</span> -->
-                        <span class="visitor_name">杨林</span>
-                        <span v-if="item.gender === 0">男</span>
-                        <span>年龄: 20</span>
+                        <img :src="item.people.avatar ? item.people.avatar: '/static/images/user_avatar.png'" alt="" class="left" width="60px" height="60px">
+                        <span class="visitor_name">{{item.people.name}}</span>
+                        <span v-if="item.people.gender === 0">男</span>
+                        <span v-if="item.people.gender === 1">女</span>
+                        <span>年龄: {{item.people.age}}</span>
                         <span>天数: <span style="font-size: 15px; color: #999;margin-left:10px;">{{item.deadline}}</span></span>
                         <span>申请时间: <span style="font-size: 15px; color: #999;margin-left:10px;">{{item.created_at.substring(0,10)}} {{item.created_at.substring(11, 16)}}</span></span>
                         <el-button class="list_button" type="primary" size="small" v-if="item.status === 0" @click="passApply(index)">通过</el-button>
@@ -269,16 +267,11 @@ export default {
                         label: '绍兴',
                         children: [{
                             value: '幸福花园小区1',
-                            label: '幸福花园小区1'
-                        }, {
-                            value: '幸福花园小区2',
-                            label: '幸福花园小区2'
-                        }, {
-                            value: '幸福花园小区3',
-                            label: '幸福花园小区3'
-                        }, {
-                            value: '幸福花园小区4',
-                            label: '幸福花园小区4'
+                            label: '幸福花园小区1',
+                            children: [{
+                                value: 594,
+                                label: '15-621',
+                            }]
                         }]
                     }]
                 }
@@ -317,11 +310,11 @@ export default {
                     title: "密码修改",
                     rank: 0,
                 },
-                // {
-                //     id: 6,
-                //     title: "访问申请",
-                //     rank: 1,
-                // },
+                {
+                    id: 6,
+                    title: "访问申请",
+                    rank: 1,
+                },
                 // {
                 //     id: 7,
                 //     title: "提问中心",
@@ -609,6 +602,7 @@ export default {
             const visitors = await Resident.getVisitors(data);
             this.visitorData = [];
             this.visitorData = visitors.datas;
+            console.log(this.visitorData);
             this.visitorTotal = visitors.total;
         },
         async getRecordByStatus(status) {
@@ -639,6 +633,7 @@ export default {
                     console.log(action);
                     if (action === 'confirm') {
                         await Resident.approveVisitor({
+                            id: this.visitorData[index].id,
                             visitorId: this.visitorData[index].visitor_id
                         });
                         this.visitorData[index].status = 1;
@@ -701,8 +696,11 @@ export default {
             // 提交申请信息
             this.$refs["apply_form"].validate(async (valid) => {
                 if (valid) {
+                    this.applyForm.belong = this.applyForm.adress[this.applyForm.adress.length - 1];
+                    // delete this.applyForm.adress;
                     await Visitor.applyVisite(this.applyForm);
                     this.$message.success('提交成功!');
+                    this.applyForm = {};
                 } else {
                     console.log('error submit!!');
                     return false;
@@ -818,7 +816,7 @@ export default {
                     margin-top: 20px;
                 }
                 >span{
-                    margin-left: 40px;
+                    margin-left: 23px;
                     line-height: 100px;
                 }
                 .list_button{

@@ -1,7 +1,7 @@
 <script>
 import { User } from '@/api';
 import { uploadAttachment } from '@/help/env';
-
+import store from '@/store';
 export default {
     name: 'verify',
     data() {
@@ -14,7 +14,7 @@ export default {
                 card_opposite: '',
             },
             auth: {
-                authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzZWxmSWQiOjIsImlhdCI6MTUyMzM1MzA5OSwiZXhwIjoxNTI0MjE3MDk5fQ.TtmIHDbSfLoRXeA88u7mZBV6--4q8T9ml-O58q6TEjE'
+                authorization: 'Bearer ' + store.getters.token
             },
             idUrl: '',
             cardFUrl: '',
@@ -43,9 +43,9 @@ export default {
         this.uploadUrl = uploadAttachment;
     },
     mounted() {
-        if (this.$store.getters.residentAuth !== 0) {
-            this.$router.push({path: "/user"});
-        }
+        // if (store.getters.residentAuth !== 0) {
+        //     this.$router.push({path: "/user"});
+        // }
     },
     methods: {
         beforeUpload(file) {
@@ -71,8 +71,9 @@ export default {
         postVerify() {
             // 提交审核信息
             this.$refs["verify_form"].validate(async (valid) => {
+                console.log(this.verifyForm);
                 if (valid) {
-                    const result = await User.verify(this.verifyForm);
+                    await User.verify(this.verifyForm);
                     this.$message.success('提交成功!');
                     this.$router.push({path: "/user"});
                 } else {
