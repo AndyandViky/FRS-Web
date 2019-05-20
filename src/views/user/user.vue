@@ -877,7 +877,7 @@ export default {
                 }
             }
             .image_item{
-                width: 218px;
+                width: 211px;
                 height: 300px;
                 margin-right: 22px;
                 margin-bottom: 20px;

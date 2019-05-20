@@ -88,12 +88,12 @@ export default {
                 await this.$store.dispatch('SetToken', result.token);
                 result.user.is_verify = result.isVerify;
                 await this.$store.dispatch('SetUser', result.user);
-                this.show = false;
                 this.$message({
                     type: 'success',
                     message: '登录成功!'
                 });
             });
+            this.show = false;
         },
         async Register_click() {
             if (typeof this.registerForm.email === 'undefined' || this.registerForm.email.length === 0) {
