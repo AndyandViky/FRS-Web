@@ -20,10 +20,15 @@ export default {
                 email: undefined,
                 vCode: undefined,
                 password: undefined,
-                user_adress: undefined,
+                house_number: undefined,
                 types: 2,
                 confirmPassword: undefined,
                 name: undefined,
+            },
+            reChangePwd: {
+                email: undefined,
+                vCode: undefined,
+                password: undefined,
             },
             l_message: '',
             r_message: '',
@@ -44,6 +49,9 @@ export default {
         ]),
         CodeBtnDisabled() {
             return !(((typeof this.registerForm.email !== 'undefined') && this.registerForm.email.length !== 0) && (this.codeBtnShow));
+        },
+        RePwdBtnDisabled() {
+            return !(((typeof this.reChangePwd.email !== 'undefined') && this.reChangePwd.email.length !== 0) && (this.codeBtnShow));
         }
     },
     methods: {
@@ -60,8 +68,7 @@ export default {
                 return true;
             }
         },
-        sendVCode() {
-            const email = this.registerForm.email;
+        sendVCode(email) {
             User.sendRegisterEmail({
                 email
             }).then(result => {
@@ -96,12 +103,6 @@ export default {
             this.show = false;
         },
         async Register_click() {
-            if (typeof this.registerForm.email === 'undefined' || this.registerForm.email.length === 0) {
-                return this.$message({
-                    type: 'warning',
-                    message: '邮箱不能为空!'
-                });
-            }
             if (typeof this.registerForm.email === 'undefined' || this.registerForm.email.length === 0) {
                 return this.$message({
                     type: 'warning',
@@ -144,6 +145,36 @@ export default {
                 this.r_message = err.data.error;
             }
         },
+        async rechange_pwd_click() {
+            if (typeof this.reChangePwd.email === 'undefined' || this.reChangePwd.email.length === 0) {
+                return this.$message({
+                    type: 'warning',
+                    message: '邮箱不能为空!'
+                });
+            }
+            if (typeof this.reChangePwd.password === 'undefined' || this.reChangePwd.password.length === 0) {
+                return this.$message({
+                    type: 'warning',
+                    message: '密码不能为空!'
+                });
+            }
+            if (typeof this.reChangePwd.vCode === 'undefined' || this.reChangePwd.vCode.length === 0) {
+                return this.$message({
+                    type: 'warning',
+                    message: '验证码不能为空!'
+                });
+            }
+            try {
+                await User.rechangePwd(this.reChangePwd);
+                this.operation = 0;
+                this.$message({
+                    type: 'success',
+                    message: '修改成功，请登录'
+                });
+            } catch (err) {
+                this.r_message = err.data.error;
+            }
+        },
         close() {
             this.clear();
             this.show = false;
@@ -157,10 +188,13 @@ export default {
             this.registerForm.confirmPassword = undefined;
             this.registerForm.vCode = undefined;
             this.registerForm.password = undefined;
-            this.registerForm.user_adress = undefined;
+            this.registerForm.house_number = undefined;
             this.registerForm.types = 2;
             this.l_message = '';
             this.r_message = '';
+            this.reChangePwd.password = undefined;
+            this.reChangePwd.email = undefined;
+            this.reChangePwd.vCode = undefined;
         }
     },
     watch: {
@@ -181,13 +215,14 @@ export default {
         <div class="login_box" v-if="show">
             <div class="login_wrapper">
                 <ul class="title">
-                    <li :class="[operation?'':'active']" @click="operation=0; clear();">登录</li>
-                    <li :class="[operation?'active':'']" @click="operation=1; clear();">注册</li>
+                    <li :class="[operation === 0 ?'active':'']" @click="operation=0; clear();">登录</li>
+                    <li :class="[operation === 1 ?'active':'']" @click="operation=1; clear();">注册</li>
+                    <li :class="[operation === 2 ?'active':'']" @click="operation=2; clear();">忘记密码</li>
                     <li class="close_icon" @click="close">
                         <img src="/static/images/close_2.png">
                     </li>
                 </ul>
-                <div class="login_body" v-if="!operation">
+                <div class="login_body" v-if="operation === 0">
                     <div class="input_box">
                         <img src="/static/images/user_icon.png">
                         <input type="" name="user" placeholder="输入邮箱 / 手机号" v-model="loginForm.username">
@@ -196,11 +231,33 @@ export default {
                         <img src="/static/images/password_icon.png">
                         <input type="password" name="password" placeholder="输入密码" v-model="loginForm.password">
                     </div>
+                    <div @click="operation=2; clear();" style="float:right;color: #999;font-size: 14px;margin-top:3px;cursor: pointer;">忘记密码？</div>
                     <div class="button" @click="Login_click">登 录</div>
                     <div class="message" v-if="l_message">{{l_message}} !</div>
                 </div>
 
-                <div class="register_body" v-if="operation">
+                <div class="rechange_pwd_body" v-if="operation === 2">
+                    <div class="input_box">
+                        <img src="/static/images/user_icon.png">
+                        <input type="" name="user" placeholder="输入邮箱" v-model="reChangePwd.email">
+                    </div>
+                    <div class="input_box">
+                        <img src="/static/images/vcode.png">
+                        <input type="text" name="vcode" placeholder="请输入验证码" v-model="reChangePwd.vCode">
+                        <button @click="sendVCode(reChangePwd.email)" :disabled="RePwdBtnDisabled">
+                            <span title="输入邮箱获取验证码" v-show="codeBtnShow">获取验证码</span>
+                            <span v-show="!codeBtnShow">{{count}} s</span>
+                        </button>
+                    </div>
+                    <div class="input_box">
+                        <img src="/static/images/password_icon.png">
+                        <input type="password" name="password" placeholder="输入新密码" v-model="reChangePwd.password">
+                    </div>
+                    <div class="button" @click="rechange_pwd_click">修 改</div>
+                    <div class="message" v-if="l_message">{{l_message}} !</div>
+                </div>
+
+                <div class="register_body" v-if="operation === 1">
                     <div class="typeswitch">
                         <label class="m-radiobox" @click="registerForm.types = 2">
                             <input type="radio" name="customer_registration_type" required="required" class="radio" value="2" checked="">
@@ -213,7 +270,7 @@ export default {
                     </div>
                     <div class="input_box" :class="[registerForm.types == 1?'hide':'']">
                         <img src="/static/images/company_icon.png">
-                        <input type="text" name="company" placeholder="请输入业主地址" v-model="registerForm.user_adress">
+                        <input type="text" name="company" placeholder="请输入业主地址" v-model="registerForm.house_number">
                     </div>
                     <div class="input_box">
                         <img src="/static/images/login_phone.png">
@@ -226,7 +283,7 @@ export default {
                     <div class="input_box">
                         <img src="/static/images/vcode.png">
                         <input type="text" name="vcode" placeholder="请输入验证码" v-model="registerForm.vCode">
-                        <button @click="sendVCode" :disabled="CodeBtnDisabled">
+                        <button @click="sendVCode(registerForm.email)" :disabled="CodeBtnDisabled">
                             <span title="输入邮箱获取验证码" v-show="codeBtnShow">获取验证码</span>
                             <span v-show="!codeBtnShow">{{count}} s</span>
                         </button>

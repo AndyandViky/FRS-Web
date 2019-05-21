@@ -21,6 +21,9 @@ export const sendRegisterEmail = (data) => request('/send/email', data, 'post');
 // 修改密码
 export const changePwd = (data) => request('/password', data, 'put');
 
+// 忘记密码
+export const rechangePwd = (data) => request('/rechange/password', data, 'put');
+
 // 获取门禁记录
 export const getCameraRecords = (data) => request('/camera/records', data, 'get');
 
